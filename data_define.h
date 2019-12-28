@@ -4,10 +4,20 @@
 #include <string>
 #include <time.h>
 #include <queue>
+#include <iostream>
 // 目录项定义
 using namespace std;
 
-typedef struct FolderElement{
+// 正常返回
+#define STATUS_OK 0
+// 线程阻塞状态
+#define STATUS_BUSY -1
+// 内存/磁盘已满
+#define STATUS_FULL -2
+// 错误
+#define STATUS_ERR -3
+
+typedef struct FCB{
     // 文件结构，文件为0，文件夹为1
     int type;
     string fileName;//文件名
@@ -27,8 +37,7 @@ typedef struct FolderElement{
     tm createTime; // 创建的时间
     // 在磁盘中存放的地址
     queue<int> addrQueue;
-}FolderElement;
-
+}FCB;
 
 typedef struct BlockTime{
     //提供数据块进入模拟内存的时间
@@ -37,6 +46,20 @@ typedef struct BlockTime{
     tm accessTime;
 } BlockTime;
 
+// 线程管理模块
+typedef struct TCB{
+    TCB();
+    FCB * fcb;
+    string data;
+    bool isAlloc = false; //分配后要把isAlloc改为true
+    int mBlock[4] = {-1,-1,-1,-1}; //4个block的内存块号
+} TCB;
+
+// 输出数据
+void outputStr(string s){
+    // 先用cout进行输出，后续使用QString进行输出
+    std::cout<<s<<endl;
+}
 
 
 #endif // DATA_DEFINE_H
