@@ -10,11 +10,7 @@ public:
     // 暂存磁盘管理的指针变量
     DiskManager * dManager;
 
-
     FolderManager(DiskManager * dManager);
-
-    // 输出信息：获取所有文件
-    queue<FCB*> getFiles();
 
     // 添加目录项，注意：添加时记得往element里面填写tm时间数据
     FCB* generateData(string data,string fileName);
@@ -24,6 +20,9 @@ public:
 
     // 读取数据
     string getData(FCB * element);
+
+    // 输出信息：获取所有文件
+    queue<FCB*> getFiles();
 };
 
 #endif // FOLDERMANAGER_H

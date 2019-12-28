@@ -25,3 +25,9 @@ int DiskManager::receiveF_add(string data,string fileName){
 string DiskManager::receiveF_read(FCB* e){
 
 }
+
+
+// 输出接口，输出位示图，注意：输出当前位示图中的每一个元素，用queue传值
+queue<BitMapItem> DiskManager::getCurrentBitMap(){
+
+}

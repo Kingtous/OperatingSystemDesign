@@ -17,13 +17,16 @@ public:
     bool freeBlock(TCB *t);
 
     // 从内存读取数据，index
-    int read(TCB *t,int index);
+    string read(TCB *t,int pageIndex);
 
     // 回写数据
-    int writeBack(TCB* t,int index);
+    int writeBack(TCB* t,int pageIndex);
 
     // 读取换出页的数据
-    int loadWriteBackData(TCB*t,int index);
+    int loadWriteBackData(TCB* t,int pageIndex);
+
+    // 输出当前MemoryBlock的状态
+    queue<MemoryBlockItem> getCurrentMemoryBlock();
 
 };
 

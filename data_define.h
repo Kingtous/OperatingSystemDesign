@@ -58,4 +58,19 @@ typedef struct TCB{
 // 输出数据
 void outputStr(string s);
 
+// 位示图表示，用于存放
+typedef struct BitMapItem{
+    bool isFree = true;
+    string data;//注意，这个data最多只能有4个字符， 1个块4B
+    int x = -1; //位示图x轴，二维数组第1个下标
+    int y = -1; //位示图y轴，二维数组第2个下标
+} BitFreeMap;
+
+// 内存块状况
+typedef struct MemoryBlockItem{
+    int id; //内存块号
+    bool isFree = true;
+    string data;//注意，这个data最多只能有4个字符， 1个块4B
+}MemoryBlockItem;
+
 #endif // DATA_DEFINE_H

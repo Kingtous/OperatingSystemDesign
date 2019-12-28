@@ -8,13 +8,13 @@
 #include "folder_manager.h"
 #include "memory_manager.h"
 #include "disk_manager.h"
-
+// 信号量
 #include <semaphore.h>
 
-class ProcessManager
+class ThreadManager
 {
 public:
-    ProcessManager();
+    ThreadManager();
     // 两个Manager
     DiskManager dManager;
     FolderManager fManager(DiskManager * dManager);

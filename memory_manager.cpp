@@ -5,7 +5,7 @@ MemoryManager::MemoryManager(DiskManager * dManager)
 
 }
 
-// 分配内存，分配成功isAlloc <- true.
+// 分配内存，分配成功isAlloc <- true.并且修改TCB中的block内存号
 int MemoryManager::allocMemory(TCB *t){
 
 }
@@ -15,17 +15,23 @@ bool MemoryManager::freeBlock(TCB *t){
 
 }
 
-// 从内存读取数据，index
-int MemoryManager::read(TCB *t,int index){
+// 从内存读取数据，需要将strIndex/4转成页号
+string MemoryManager::read(TCB *t,int pageIndex){
 
 }
 
-// 回写数据
-int MemoryManager::writeBack(TCB* t,int index){
+// 回写数据，需要将strIndex/4转成页号
+int MemoryManager::writeBack(TCB* t,int pageIndex){
 
 }
 
-// 读取换出页的数据
-int MemoryManager::loadWriteBackData(TCB*t,int index){
+// 读取换出页的数据，需要将strIndex/4转成页号
+int MemoryManager::loadWriteBackData(TCB*t,int pageIndex){
+
+}
+
+// 输出当前MemoryBlock的状态
+queue<MemoryBlockItem> MemoryManager::getCurrentMemoryBlock(){
+
 
 }
