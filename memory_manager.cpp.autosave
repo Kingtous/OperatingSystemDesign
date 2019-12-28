@@ -1,6 +1,0 @@
-#include "memory_manager.h"
-
-MemoryManager::MemoryManager(DiskManager * dManager)
-{
-
-}
