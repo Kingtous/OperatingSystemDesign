@@ -1,0 +1,7 @@
+#include "disk_manager.h"
+
+// 初始化函数
+DiskManager::DiskManager()
+{
+
+}

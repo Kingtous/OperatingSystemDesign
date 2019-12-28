@@ -1,0 +1,6 @@
+#include "folder_manager.h"
+
+FolderManager::FolderManager()
+{
+
+}
