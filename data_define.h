@@ -8,8 +8,10 @@
 using namespace std;
 
 typedef struct FolderElement{
-     string fileName;//文件名
-     string owner;
+    // 文件结构，文件为0，文件夹为1
+    int type;
+    string fileName;//文件名
+    string owner;
     // tm为C++标准时间struct
     //     struct tm {
     //       int tm_sec;   // 秒，正常范围从 0 到 59，但允许至 61
@@ -22,12 +24,9 @@ typedef struct FolderElement{
     //       int tm_yday;  // 一年中的第几天，范围从 0 到 365，从 1 月 1 日算起
     //       int tm_isdst; // 夏令时
     //     }
-     tm createTime; // 创建的时间
-     // 文件结构？
-     // ?
-     // 在磁盘中存放的地址
-     queue<int> addrQueue;
-
+    tm createTime; // 创建的时间
+    // 在磁盘中存放的地址
+    queue<int> addrQueue;
 }FolderElement;
 
 
