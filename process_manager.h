@@ -9,14 +9,24 @@
 #include "memory_manager.h"
 #include "disk_manager.h"
 
+#include <semaphore.h>
+
 class ProcessManager
 {
 public:
     ProcessManager();
     // 两个Manager
     DiskManager dManager;
-    FolderManager fManager;
-    MemoryManager mManager;
+    FolderManager fManager(DiskManager * dManager);
+    MemoryManager mManager(DiskManager * dManager);
+
+
+    void showFiles();
+
+    void exe_read();
+
+    void deleteFile(FCB *t);
+
 
 
 

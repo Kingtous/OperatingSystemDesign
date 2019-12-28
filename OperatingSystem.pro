@@ -25,6 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        data_define.cpp \
         disk_manager.cpp \
         folder_manager.cpp \
         main.cpp \

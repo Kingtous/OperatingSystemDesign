@@ -7,6 +7,10 @@
 class FolderManager
 {
 public:
+    // 暂存磁盘管理的指针变量
+    DiskManager * dManager;
+
+
     FolderManager(DiskManager * dManager);
 
     // 输出信息：获取所有文件

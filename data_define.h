@@ -56,9 +56,6 @@ typedef struct TCB{
 } TCB;
 
 // 输出数据
-void outputStr(string s){
-    // 先用cout进行输出，后续使用QString进行输出
-    std::cout<<s<<endl;
-}
+void outputStr(string s);
 
 #endif // DATA_DEFINE_H

@@ -2,27 +2,28 @@
 #define MEMORYMANAGER_H
 
 #include "data_define.h"
+#include "disk_manager.h"
 
 class MemoryManager
 {
 public:
     // 构造函数
-    MemoryManager();
+    MemoryManager(DiskManager * dManager);
 
     // 分配内存，分配成功isAlloc <- true.
-    void allocMemory(TCB *t);
+    int allocMemory(TCB *t);
 
     // 释放TCB里面的数据
     bool freeBlock(TCB *t);
 
     // 从内存读取数据，index
-    void read(TCB *t,int index);
+    int read(TCB *t,int index);
 
     // 回写数据
     int writeBack(TCB* t,int index);
 
     // 读取换出页的数据
-    void loadWriteBackData(TCB*t,int index);
+    int loadWriteBackData(TCB*t,int index);
 
 };
 

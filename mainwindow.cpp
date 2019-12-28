@@ -35,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     tabWidget->setParent(this);
     tabWidget->setFixedSize(this->width(),this->height());
 
+    // 添加标签
 
 
 }
