@@ -7,8 +7,9 @@
 class DiskManager
 {
 public:
-    BitMapItem Map[32][32];
-    // 构造函数   初始化系统
+    //位示图
+    BitMapItem Map[1024];
+    // 构造函数
     DiskManager();
     //磁盘分配
     int getBlock(int blocksize);
