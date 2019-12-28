@@ -7,6 +7,8 @@
 class DiskManager
 {
 public:
+    //位示图
+    BitMapItem Map[1024];
     // 构造函数
     DiskManager();
 
