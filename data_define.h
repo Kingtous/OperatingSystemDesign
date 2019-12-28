@@ -61,5 +61,4 @@ void outputStr(string s){
     std::cout<<s<<endl;
 }
 
-
 #endif // DATA_DEFINE_H

@@ -15,8 +15,11 @@ public:
     ProcessManager();
     // 两个Manager
     DiskManager dManager;
-    FolderManager fManager;
-    MemoryManager mManager;
+    FolderManager fManager(DiskManager * dManager);
+    MemoryManager mManager(DiskManager * dManager);
+    
+    
+    void showFiles()
 
 
 
