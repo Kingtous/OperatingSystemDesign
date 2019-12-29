@@ -35,6 +35,7 @@ typedef struct FCB{
     //       int tm_isdst; // 夏令时
     //     }
     tm createTime; // 创建的时间
+    int fileSize;
     // 在磁盘中存放的地址
     queue<int> addrQueue;
 }FCB;

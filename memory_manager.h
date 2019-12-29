@@ -1,6 +1,8 @@
 #ifndef MEMORYMANAGER_H
 #define MEMORYMANAGER_H
 
+#include <QString>
+
 #include "data_define.h"
 #include "disk_manager.h"
 

@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <main_form.h>
+#include "systemwindow.h"
 namespace Ui {
     class MainWindow;
 }
@@ -16,11 +16,14 @@ public:
     ~MainWindow();
 
 
+private slots:
+    void on_pushButton_clicked();
+    //
+    void showDialog(QDialog * dialog);
+
 private:
     Ui::MainWindow *ui;
-
-    main_form form1;
-    main_form form2;
+    SystemWindow sysWin;
 
 };
 

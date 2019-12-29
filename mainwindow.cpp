@@ -3,6 +3,10 @@
 #include <QMessageBox>
 #include <QAbstractButton>
 #include <QTabWidget>
+
+#include "systemwindow.h"
+#include <QDebug>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -18,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMenu * menu1 = new QMenu();
     menu1->addAction("关于",[=](){
        QMessageBox  * message = new QMessageBox();
-       message->setText("任务管理器V1.0 By Kingtous");
+       message->setText("Thread Simulator V1.0\n东北大学秦皇岛分校计科1702班小组作品：\n成员：金韬、杭功茂、王鹏、张伯羽");
        message->addButton("确定",QMessageBox::AcceptRole);
        message->addButton("取消",QMessageBox::DestructiveRole);
        message->show();
@@ -27,21 +31,25 @@ MainWindow::MainWindow(QWidget *parent) :
         // 退出功能
         this->close();
     });
-    menu1->setTitle("功能");
+    menu1->setTitle("关于");
     bar->addMenu(menu1);
-
-    // Tab选项
-    QTabWidget * tabWidget = new QTabWidget();
-    tabWidget->setParent(this);
-    tabWidget->setFixedSize(this->width(),this->height());
-
-    // 添加标签
-
-
 }
 
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+
+
+void MainWindow::on_pushButton_clicked()
+{
+    this->hide();
+    sysWin.show();
+}
+
+void MainWindow::showDialog(QDialog *dialog)
+{
+
 }

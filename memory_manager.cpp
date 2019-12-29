@@ -1,4 +1,6 @@
 #include "memory_manager.h"
+
+#include <QString>
 // 构造函数
 MemoryManager::MemoryManager(DiskManager * dManager)
 {
@@ -32,6 +34,18 @@ int MemoryManager::loadWriteBackData(TCB*t,int pageIndex){
 
 // 输出当前MemoryBlock的状态
 queue<MemoryBlockItem> MemoryManager::getCurrentMemoryBlock(){
-
-
+    // 以下为测试数据
+    queue<MemoryBlockItem> q;
+    MemoryBlockItem items[16];
+    for (int i =0;i<16;i++){
+        items[i].id=i;
+        items[i].data="测试数据";
+        if(i%2==0){
+            items[i].isFree = true;
+        } else {
+            items[i].isFree = false;
+        }
+        q.push(items[i]);
+    }
+    return q;
 }

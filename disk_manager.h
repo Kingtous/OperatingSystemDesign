@@ -26,8 +26,6 @@ public:
     queue<BitMapItem> getCurrentBitMap();
 
 
-
-
 private:
 };
 
