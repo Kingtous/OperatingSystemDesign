@@ -18,7 +18,7 @@ DiskManager::DiskManager()
     int BitMapSize = 256;//存放位示图要用到的空间
     for(int i=0;i<BitMapSize;i++)
         SystemAddr[i]=1;//已经使用*/
-    SystemAddr = (char *)malloc(SystemSize*sizeof(char));
+    //SystemAddr = (char *)malloc(SystemSize*sizeof(char));
     //BitMapItem Map[32][32];
     for(int i=0;i<1024;i++){
         Map[i] = true;
@@ -26,9 +26,6 @@ DiskManager::DiskManager()
         Map[i].y = (i-1)%32;
     }
 }
-//获得盘块的物理地址
-char* DiskManager::GetBlockAddr(int blocknum){
-    return SystemAddr + blocknum * 4;//偏移量位字节
 
 //对换区磁盘分配
 int DiskManager::getBlock(int blocksize){
@@ -37,7 +34,7 @@ int DiskManager::getBlock(int blocksize){
     int b = 0;
     int c = 0;
     for(int i=900;i<1024;i++){
-        if(DiskManager().Map[i].isFree == true){
+        if(this->Map[i].isFree == true){
             if(sum==0)
                 startBlock=i;
                 //
@@ -45,7 +42,7 @@ int DiskManager::getBlock(int blocksize){
             if(sum==blocksize)
             {
                 for(int j=startBlock;j<startBlock+BlockSize;j++){
-                    DiskManager().Map[j].isFree = false;
+                    this->Map[j].isFree = false;
                 }
                 return startBlock;
             }
@@ -59,7 +56,7 @@ int DiskManager::getBlock(int blocksize){
 int DiskManager::ReleaseBlock(int blocknum,int blocksize){
     int endblock = blocknum + blocksize;
     for(int i=blocknum;i<endblock;i++)
-    DiskManager().Map[i].isFree = true;
+    this->Map[i].isFree = true;
     return 0;
 }
 // 从内存接收对换数据
@@ -86,42 +83,10 @@ string DiskManager::receiveF_read(FCB* e){
 // 输出接口，输出位示图，注意：输出当前位示图中的每一个元素，用queue传值
 queue<BitMapItem> DiskManager::getCurrentBitMap(){
     queue<BitMapItem> q;
-    for(int i=0;i<1024;i++)q.push(DiskManager().Map[i])
+    for(int i=0;i<1024;i++)q.push(this->Map[i]);
     return q;
 }
 
-//定义一次间址的索引块、二次和三次间址的最后一层索引快；
-struct Index_block_three
-{
-    int blocks[MAX_NUMBER_IN_BLOCK];
-};
-
-//定义二次间址的第一个索引块，和三次间址的第二个索引块
-struct Index_block_two
-{
-    Index_block_three *blocks[MAX_NUMBER_IN_BLOCK];
-};
-
-//定义三次间址的第一个索引块
-struct Index_block_one
-{
-    Index_block_two *blocks[MAX_NUMBER_IN_BLOCK];
-};
-
-//定义混合索引的数据结构
-struct Index_File
-{
-    //文件大小
-    int fileSize;
-    //定义10个直接地址项
-    int addr[10];
-    //定义一次间址的地指项
-    Index_block_three *addr10;
-    //定义二次间址的地址项
-    Index_block_two *addr11;
-    //定义三次间址的地址项
-    Index_block_one *addr12;
-};
 //生成第三层索引，并并根据blocks赋值，
 Index_block_three* indexBlockThree(int blocks[],int start,int end)
 {
@@ -170,33 +135,26 @@ Index_block_one* indexBlockOne(int blocks[],int start,int end)
 }
 
 //给定一个文件的长度，给出模拟分配占用的磁盘块的情况
- DIndex_File* indexFile(int filesize)
+ DIndex_File* DiskManager::indexFile(int filesize)
  {
-     printf("文件大小为：%d B\n",filesize);
      //计算该文件需要多少盘块
      int block_num = filesize % BLOCK_SIZE == 0 ? filesize / BLOCK_SIZE : filesize / BLOCK_SIZE + 1;
-     printf("共占 %d 个盘块\n",block_num);
      //定义保存所有盘块号的数组
      int *blocks = (int *) malloc(sizeof(int) * block_num);
      //初始化数组
      memset(blocks,0,sizeof(int) * block_num);
 
-//     for(int i = 0; i < block_num; i++)
-//        printf("%d ",blocks[i]);
 
      //模拟系统分配空闲盘块号
-     //随机数种子
      srand(time(NULL));
-     //map标记，避免产生重复的盘块号
-     map<int,int> flag;
      for(int i = 0; i < block_num; i++)
      {
          int temp = rand() % MAX_BLOCK_NUMBER;
-         while(DiskManager().Map[temp].isFree = false)
+         while(this->Map[temp].isFree = false)
          {
             temp = rand() % MAX_BLOCK_NUMBER;
          }
-         DiskManager().Map[temp].isFree = false;
+         this->Map[temp].isFree = false;
          blocks[i] = temp;
      }
 
@@ -249,7 +207,7 @@ Index_block_one* indexBlockOne(int blocks[],int start,int end)
 
 
 //给定地址addrss和文件indexfile，找到地址对应的块号；
-int findBlock(int addrss, Index_File *indexfile)
+int DiskManager::findBlock(int addrss, Index_File *indexfile)
 {
     addrss++;
     int block_num = addrss % BLOCK_SIZE == 0 ? addrss / BLOCK_SIZE : addrss / BLOCK_SIZE + 1;
