@@ -19,105 +19,6 @@ DiskManager::DiskManager()
         disk[i] = nullData;
     }
 }
-int DiskManager::deleteBlock(FCB *e){
-    for(int i=900;i<1024;i++){
-        if(e->fileName == this->Map[i].fileName){
-            this->Map[i].isFree = true;
-            this->Map[i].fileName = nullName;
-            this->Map[i].data = nullData;
-            this->disk[i] = nullData;
-        }
-    }
-    return STATUS_OK;
-}
-//对换区磁盘分配
-int DiskManager::changeBlock(FCB *e,string dt,int number){
-    for(int i=900;i<1024;i++){
-        if(this->Map[i].isFree == true){
-            this->Map[i].isFree = false;
-            this->Map[i].fileName = e->fileName;
-            this->Map[i].data = dt;
-            this->Map[i].pageNumber = number;
-            this->disk[i] = dt;
-        }
-    }
-    return STATUS_BUSY;
-}
-//释放盘块
-int DiskManager::ReleaseBlock(FCB *e){
-    for(int i=0;i<1024;i++){
-        if(e->fileName == this->Map[i].fileName){
-            this->Map[i].isFree = true;
-            this->Map[i].fileName = nullName;
-            this->Map[i].data = nullData;
-            this->disk[i] = nullData;
-        }
-    }
-    return STATUS_OK;
-}
-// 从内存接收对换数据
-int DiskManager::receiveM(FCB * e,int pageNumber,string data){
-    for(int i=900;i<1024;i++){
-        if(pageNumber == this->Map[i].pageNumber){
-            return STATUS_OK;
-            break;
-        }
-    }
-    changeBlock(e,data,pageNumber);
-    return STATUS_OK;
-}
-
-// 从目录管理接受删除
-int DiskManager::receiveF_delete(FCB * e){
-    for(int i=0;i<900;i++){
-        if(Map[i].fileName == e->fileName){
-            Map[i].isFree = true;
-            Map[i].fileName = nullName;
-            Map[i].data = nullData;
-            disk[i] = nullData;
-        }
-    }
-    return STATUS_OK;
-}
-
-// 从目录接受添加
-int DiskManager::receiveF_add(FCB *e,string data){
-    Index_File* iFile = indexFile(e);
-    int b[10];
-    int a;
-    for(int i=0;i<10;i++){
-        b[i] = iFile->addr[i];
-    }
-    e->iFile = iFile;
-    a = data.size();
-
-}
-
-// 从目录中读取
-string DiskManager::receiveF_read(FCB* e){
-    int b[10];
-    for(int i=0;i<10;i++){
-        b[i] = e->iFile->addr[i];
-    }
-    int sum = 0;
-    for(int i=0;i<10;i++){
-        if(b[i] != -1)sum++;
-    }
-    string a = "";
-    for(int j=0;j<sum;j++){
-        a = a + Map[a[j]].data;
-    }
-    return a;
-}
-
-
-// 输出接口，输出位示图，注意：输出当前位示图中的每一个元素，用queue传值
-queue<BitMapItem> DiskManager::getCurrentBitMap(){
-    queue<BitMapItem> q;
-    for(int i=0;i<1024;i++)q.push(this->Map[i]);
-    return q;
-}
-
 //生成第三层索引，并并根据blocks赋值，
 Index_block_three* indexBlockThree(int blocks[],int start,int end)
 {
@@ -192,7 +93,7 @@ Index_block_one* indexBlockOne(int blocks[],int start,int end)
 
 
      Index_File *indexfile = new Index_File();
-     indexfile->fileSize = filesize;
+     indexfile->fileSize = e->fileSize;
      indexfile->fileName = e->fileName;
      //直接地址
      if(block_num <= 10)
@@ -232,5 +133,122 @@ Index_block_one* indexBlockOne(int blocks[],int start,int end)
         indexfile->addr11 = indexBlockTwo(blocks,MAX_NUMBER_IN_BLOCK+10,MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10);
         indexfile->addr12 = indexBlockOne(blocks,MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10,block_num);
      }
+     e->iFile = indexfile;
      return indexfile;
  }
+int DiskManager::deleteBlock(FCB *e){
+    for(int i=900;i<1024;i++){
+        if(e->fileName == this->Map[i].fileName){
+            this->Map[i].isFree = true;
+            this->Map[i].fileName = nullName;
+            this->Map[i].data = nullData;
+            this->disk[i] = nullData;
+        }
+    }
+    return STATUS_OK;
+}
+//对换区磁盘分配
+int DiskManager::changeBlock(FCB *e,string dt,int number){
+    for(int i=900;i<1024;i++){
+        if(this->Map[i].isFree == true){
+            this->Map[i].isFree = false;
+            this->Map[i].fileName = e->fileName;
+            this->Map[i].data = dt;
+            this->Map[i].pageNumber = number;
+            this->disk[i] = dt;
+        }
+    }
+    return STATUS_BUSY;
+}
+//释放盘块
+int DiskManager::ReleaseBlock(FCB *e){
+    for(int i=0;i<1024;i++){
+        if(e->fileName == this->Map[i].fileName){
+            this->Map[i].isFree = true;
+            this->Map[i].fileName = nullName;
+            this->Map[i].data = nullData;
+            this->disk[i] = nullData;
+        }
+    }
+    return STATUS_OK;
+}
+// 从内存接收对换数据
+int DiskManager::receiveM(FCB * e,int pageNumber,string data){
+    for(int i=900;i<1024;i++){
+        if(pageNumber == this->Map[i].pageNumber){
+            return STATUS_OK;
+            break;
+        }
+    }
+    changeBlock(e,data,pageNumber);
+    return STATUS_OK;
+}
+
+// 从目录管理接受删除
+int DiskManager::receiveF_delete(FCB * e){
+    for(int i=0;i<900;i++){
+        if(Map[i].fileName == e->fileName){
+            Map[i].isFree = true;
+            Map[i].fileName = nullName;
+            Map[i].data = nullData;
+            disk[i] = nullData;
+        }
+    }
+    return STATUS_OK;
+}
+
+// 从目录接受添加
+int DiskManager::receiveF_add(FCB *e,string data){
+    e->iFile = indexFile(e);
+    int b[10];
+    for(int i=0;i<10;i++){
+        b[i] = e->iFile->addr[i];
+    }
+    int sum=0;
+    for(int i=0;i<10;i++){
+        if(b[i] != -1)sum++;
+    }
+    int a;
+    a = data.size();
+    for(int i=0,j=0;i<sum,j<a;i++,j=j+4){
+        if((j+4)>=(a-1)){
+            this->Map[b[i]].isFree = false;
+            this->Map[b[i]].fileName = e->fileName;
+            this->Map[b[i]].data = data.substr(j,a-1);
+            this->disk[b[i]] = data.substr(j,a-1);
+        }
+        else{
+            this->Map[b[i]].isFree = false;
+            this->Map[b[i]].fileName = e->fileName;
+            this->Map[b[i]].data = data.substr(j,j+4);
+            this->disk[b[i]] = data.substr(j,j+4);
+        }
+    }
+    return STATUS_OK;
+}
+
+// 从目录中读取
+string DiskManager::receiveF_read(FCB* e){
+    int b[10];
+    for(int i=0;i<10;i++){
+        b[i] = e->iFile->addr[i];
+    }
+    int sum = 0;
+    for(int i=0;i<10;i++){
+        if(b[i] != -1)sum++;
+    }
+    string a = "";
+    for(int j=0;j<sum;j++){
+        a = a + Map[b[j]].data;
+    }
+    return a;
+}
+
+
+// 输出接口，输出位示图，注意：输出当前位示图中的每一个元素，用queue传值
+queue<BitMapItem> DiskManager::getCurrentBitMap(){
+    queue<BitMapItem> q;
+    for(int i=0;i<1024;i++)q.push(this->Map[i]);
+    return q;
+}
+
