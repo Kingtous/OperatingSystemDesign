@@ -39,7 +39,7 @@ queue<MemoryBlockItem> MemoryManager::getCurrentMemoryBlock(){
     MemoryBlockItem items[16];
     for (int i =0;i<16;i++){
         items[i].id=i;
-        items[i].data="测试数据";
+        items[i].data=QString::number(QRandomGenerator::global()->bounded(256)).toStdString();
         if(i%2==0){
             items[i].isFree = true;
         } else {

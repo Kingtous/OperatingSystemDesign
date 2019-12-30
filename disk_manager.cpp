@@ -29,5 +29,16 @@ string DiskManager::receiveF_read(FCB* e){
 
 // 输出接口，输出位示图，注意：输出当前位示图中的每一个元素，用queue传值
 queue<BitMapItem> DiskManager::getCurrentBitMap(){
-
+    queue<BitMapItem> q;
+    for (int j =0 ;j<32;j++){
+        for(int k =0;k<32;k++){
+            BitMapItem item;
+            item.x=j;
+            item.y=k;
+            item.data="测试数据";
+            item.isFree = true;
+            q.push(item);
+        }
+    }
+    return q;
 }

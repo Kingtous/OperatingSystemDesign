@@ -6,6 +6,8 @@ window_gen_data::window_gen_data(QWidget *parent) :
     ui(new Ui::window_gen_data)
 {
     ui->setupUi(this);
+    // 关闭即销毁
+    this->setAttribute(Qt::WA_DeleteOnClose,true);
 }
 
 window_gen_data::~window_gen_data()

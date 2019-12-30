@@ -17,6 +17,8 @@ public:
 
 private:
     Ui::window_del_data *ui;
+
+
 };
 
 #endif // WINDOW_DEL_DATA_H

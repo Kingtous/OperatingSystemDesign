@@ -27,6 +27,7 @@ public:
 
 
 private:
+
 };
 
 #endif // DISKMANAGER_H

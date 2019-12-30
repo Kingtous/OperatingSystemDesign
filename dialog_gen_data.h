@@ -2,6 +2,9 @@
 #define DIALOG_GEN_DATA_H
 
 #include <QDialog>
+#include <QDialogButtonBox>
+#include <QVBoxLayout>
+#include <QLineEdit>
 #include "cglobal.h"
 
 namespace Ui {
@@ -22,12 +25,16 @@ signals:
 
 private:
     Ui::dialog_gen_data *ui;
+    // 编辑框
+    QLineEdit* edit_fileName;
+    QLineEdit* edit_fileContent;
 
     // QWidget interface
 protected:
     void closeEvent(QCloseEvent *event);
 private slots:
     void on_btn_submit_clicked();
+    void on_message_btn_ok();
 };
 
 #endif // DIALOG_GEN_DATA_H

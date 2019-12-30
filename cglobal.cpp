@@ -1,5 +1,6 @@
 #include "cglobal.h"
 
+
 CGlobal::CGlobal()
 {
 
@@ -13,4 +14,3 @@ QSemaphore* CGlobal::genThreadSem = new QSemaphore(1);
 DiskManager* CGlobal::dManager = new DiskManager();
 FolderManager* CGlobal::fManager = new FolderManager(CGlobal::dManager);
 MemoryManager* CGlobal::mManager = new MemoryManager(CGlobal::dManager);
-

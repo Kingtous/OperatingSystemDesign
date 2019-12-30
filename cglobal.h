@@ -5,6 +5,7 @@
 #include "folder_manager.h"
 #include "memory_manager.h"
 #include <QSemaphore>
+#include <QWidget>
 
 class CGlobal
 {
@@ -13,7 +14,6 @@ public:
 
     // 磁盘管理
     static DiskManager* dManager;
-
     static FolderManager* fManager;
 
     static QSemaphore* mSem;
@@ -23,6 +23,8 @@ public:
     // 公有变量
     static QSemaphore* genThreadSem;
     static QSemaphore* delThreadSem;
+
 };
+
 
 #endif // CGLOBAL_H

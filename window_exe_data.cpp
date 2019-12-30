@@ -7,6 +7,8 @@ window_exe_data::window_exe_data(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setWindowTitle("数据执行");
+    // 关闭即销毁
+    this->setAttribute(Qt::WA_DeleteOnClose,true);
 }
 
 window_exe_data::~window_exe_data()
@@ -18,4 +20,10 @@ window_exe_data::~window_exe_data()
 void window_exe_data::on_pushButton_clicked()
 {
     ui->pushButton->setDisabled(true);
+}
+
+// 更新文件列表
+void window_exe_data::updateFiles()
+{
+
 }

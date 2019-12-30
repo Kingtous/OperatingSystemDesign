@@ -1,6 +1,7 @@
 #ifndef EXE_FORM_H
 #define EXE_FORM_H
 
+#include <QMainWindow>
 #include <QPushButton>
 #include <QWidget>
 
@@ -27,6 +28,9 @@ signals:
 
 private slots:
     void on_pushButton_clicked();
+    // 更新文件列表
+    void updateFiles();
+
 };
 
 #endif // EXE_FORM_H

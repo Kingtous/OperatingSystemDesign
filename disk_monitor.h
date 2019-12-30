@@ -5,8 +5,10 @@
 #include "cglobal.h"
 
 #include <QDebug>
-
+#include <QStandardItemModel>
+#include <QLabel>
 #include <QMainWindow>
+#include <QTableView>
 
 namespace Ui {
 class DiskMonitor;
@@ -20,8 +22,21 @@ public:
     explicit DiskMonitor(QWidget *parent = nullptr);
     ~DiskMonitor();
 
+
+    QTableView* tv_disk;
+    QStandardItemModel* model;
+    QLabel *ll_data;
+    QLabel *ll_status;
+    QLabel *ll_pos;
+    QLabel *ll_page;
+    QLabel *ll_totoal_free;
+
+
 private:
     Ui::DiskMonitor *ui;
+
+    queue<BitMapItem> qMapTemp;
+    BitMapItem bMItem[32][32];
 
 signals:
     // 通知主线程更新线程
@@ -30,6 +45,8 @@ signals:
 public slots:
     // 刷新内存
     void updateDiskUI();
+    // 点击表格事件
+    void onTableClicked(const QModelIndex & mIndex);
 };
 
 #endif // DISK_MONITOR_H

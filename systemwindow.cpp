@@ -113,14 +113,14 @@ void SystemWindow::createDataExeThread()
 
 void SystemWindow::openDataGenUI()
 {
-    dialog_gen_data * gdata = new dialog_gen_data();
+    dialog_gen_data * gdata = new dialog_gen_data(this);
     connect(gdata,SIGNAL(dataUpdated()),this,SLOT(updateData()));
     gdata->show();
 }
 
 void SystemWindow::openDataDelUI()
 {
-    dialog_delete_data * ddata = new dialog_delete_data();
+    dialog_delete_data * ddata = new dialog_delete_data(this);
     connect(ddata,SIGNAL(dataUpdated()),this,SLOT(updateData()));
     ddata->show();
 }
@@ -135,7 +135,7 @@ void SystemWindow::openDataExeUI()
 void SystemWindow::openMemoryMonitor()
 {
     qDebug() << "开启内存可视化";
-    MemoryMonitor * monitor = new MemoryMonitor();
+    MemoryMonitor * monitor = new MemoryMonitor(this);
     // 连接信号
     connect(this,SIGNAL(notifyUpdate()),monitor,SLOT(updateMemoryUI()));
     monitor->show();
@@ -144,7 +144,7 @@ void SystemWindow::openMemoryMonitor()
 void SystemWindow::openDiskMonitor()
 {
     qDebug() << "开启磁盘可视化";
-    DiskMonitor * monitor = new DiskMonitor();
+    DiskMonitor * monitor = new DiskMonitor(this);
     connect(this,SIGNAL(notifyUpdate()),monitor,SLOT(updateDiskUI()));
     monitor ->show();
 }

@@ -34,7 +34,7 @@ typedef struct FCB{
     //       int tm_yday;  // 一年中的第几天，范围从 0 到 365，从 1 月 1 日算起
     //       int tm_isdst; // 夏令时
     //     }
-    tm createTime; // 创建的时间
+    tm *createTime; // 创建的时间
     int fileSize;
     // 在磁盘中存放的地址
     queue<int> addrQueue;
@@ -63,6 +63,7 @@ void outputStr(string s);
 typedef struct BitMapItem{
     bool isFree = true;
     string data;//注意，这个data最多只能有4个字符， 1个块4B
+    string fileName; //文件名
     int x = -1; //位示图x轴，二维数组第1个下标
     int y = -1; //位示图y轴，二维数组第2个下标
 } BitFreeMap;
@@ -72,6 +73,7 @@ typedef struct MemoryBlockItem{
     int id; //内存块号
     bool isFree = true;
     string data;//注意，这个data最多只能有4个字符， 1个块4B
+    tm nearlyAccessTime;
 }MemoryBlockItem;
 
 #endif // DATA_DEFINE_H

@@ -1,7 +1,14 @@
 #ifndef DIALOG_DELETE_DATA_H
 #define DIALOG_DELETE_DATA_H
 
+#include <QDebug>
+#include <QQueue>
 #include <QDialog>
+#include <QListView>
+#include <QList>
+#include <QMessageBox>
+#include <QStandardItem>
+#include <QStandardItemModel>
 #include "cglobal.h"
 
 namespace Ui {
@@ -18,16 +25,29 @@ public:
 
 private:
     Ui::dialog_delete_data *ui;
+    QListView *lv_fileLists;
+    QQueue<FCB*> tmpFCB;
+    QStandardItemModel * model;
+
+    // 选中的行数
+    int row_selected;
 
     // QWidget interface
+    QLabel* ll_owner;
+    QLabel* ll_fileSize;
 protected:
     void closeEvent(QCloseEvent *event);
+    void getFileList();
 
 signals:
     void dataUpdated();
 
+
 private slots:
     void on_pushButton_clicked();
+    // 点击文件
+    void showClick(QModelIndex index);
+
 };
 
 #endif // DIALOG_DELETE_DATA_H

@@ -2,7 +2,7 @@
 #define MEMORYMANAGER_H
 
 #include <QString>
-
+#include <QRandomGenerator>
 #include "data_define.h"
 #include "disk_manager.h"
 
