@@ -34,6 +34,7 @@ void dialog_delete_data::getFileList()
     // 清空缓存数据
     model->clear();
     tmpFCB.clear();
+    row_selected = -1;
     queue<FCB*> q = CGlobal::fManager->getFiles();
     // 备份一份
     while(!q.empty()){
@@ -67,7 +68,7 @@ void dialog_delete_data::on_pushButton_clicked()
         }
         mBox->exec();
         emit dataUpdated();
-        getFileList();
+        refresh();
     } else {
         mBox->setText("请选择要删除的文件");
         mBox->exec();
@@ -80,4 +81,11 @@ void dialog_delete_data::showClick(QModelIndex index)
     row_selected = index.row();
     ll_fileSize->setText(QString::number(tmpFCB.at(row_selected)->fileSize));
     ll_owner->setText(QString::fromStdString(tmpFCB.at(row_selected)->owner));
+}
+
+void dialog_delete_data::refresh()
+{
+    ll_owner->clear();
+    ll_fileSize->clear();
+    getFileList();
 }

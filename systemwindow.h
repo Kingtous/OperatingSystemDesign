@@ -14,6 +14,7 @@
 #include "memory_monitor.h"
 #include "dialog_delete_data.h"
 #include "dialog_gen_data.h"
+#include <QMetaType>
 
 namespace Ui {
 class SystemWindow;
@@ -67,13 +68,14 @@ public slots:
     // 打开监视
     void openDataGenUI();
     void openDataDelUI();
-    void openDataExeUI();
+    void openDataExeUI(TCB* tcb);
     void openMemoryMonitor();
     void openDiskMonitor();
 
     // 显示等待框
     void showDialog(QDialog * dialog);
     void closeDialog(QDialog * dialog);
+    void showMessage(QString str);
 
     // 更新槽，通知内存和磁盘监视器进行刷新
     void updateMemoryUI();

@@ -132,7 +132,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>370</x>
      <y>50</y>
-     <width>171</width>
+     <width>241</width>
      <height>21</height>
     </rect>
    </property>
@@ -150,18 +150,18 @@ p, li { white-space: pre-wrap; }
     </rect>
    </property>
    <property name="text">
-    <string>存储目录</string>
+    <string>所有者</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLabel" name="text_folderName">
+  <widget class="QLabel" name="text_owner">
    <property name="geometry">
     <rect>
      <x>370</x>
      <y>80</y>
-     <width>171</width>
+     <width>241</width>
      <height>21</height>
     </rect>
    </property>
@@ -179,7 +179,7 @@ p, li { white-space: pre-wrap; }
     </rect>
    </property>
    <property name="text">
-    <string>大小</string>
+    <string>大小(块)</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -190,7 +190,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>370</x>
      <y>110</y>
-     <width>171</width>
+     <width>251</width>
      <height>21</height>
     </rect>
    </property>
@@ -219,12 +219,44 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>370</x>
      <y>140</y>
-     <width>131</width>
+     <width>241</width>
      <height>21</height>
     </rect>
    </property>
    <property name="text">
     <string>单击左侧文件显示</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>39</y>
+     <width>81</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>调入内存：</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="text_loadFiles">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>40</y>
+     <width>81</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
  </widget>

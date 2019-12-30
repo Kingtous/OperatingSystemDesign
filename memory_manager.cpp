@@ -9,7 +9,7 @@ MemoryManager::MemoryManager(DiskManager * dManager)
 
 // 分配内存，分配成功isAlloc <- true.并且修改TCB中的block内存号
 int MemoryManager::allocMemory(TCB *t){
-
+    return STATUS_OK;
 }
 
 // 释放TCB里面的数据

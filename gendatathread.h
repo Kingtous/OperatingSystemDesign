@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QDialog>
 #include <QVBoxLayout>
+#include <QMessageBox>
 
 // 执行线程互斥访问信号量
 
@@ -64,7 +65,10 @@ protected:
 signals:
     void showWaitDialog(QDialog * dialog);
     void closeWaitDialog(QDialog * dialog);
-    void openUI();
+    void openUI(TCB* tcb);
+    // 通知内存有变动
+    void notify();
+    void showMessage(QString str);
 
 public slots:
 

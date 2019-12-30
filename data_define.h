@@ -5,6 +5,7 @@
 #include <time.h>
 #include <queue>
 #include <iostream>
+#include <QString>
 // 目录项定义
 using namespace std;
 
@@ -36,6 +37,7 @@ typedef struct FCB{
     //     }
     tm *createTime; // 创建的时间
     int fileSize;
+    bool isInUse; // 是否正在使用
     // 在磁盘中存放的地址
     queue<int> addrQueue;
 }FCB;
@@ -49,7 +51,6 @@ typedef struct BlockTime{
 
 // 线程管理模块
 typedef struct TCB{
-    TCB();
     FCB * fcb;
     string data;
     bool isAlloc = false; //分配后要把isAlloc改为true
@@ -58,6 +59,7 @@ typedef struct TCB{
 
 // 输出数据
 void outputStr(string s);
+QString parseTM(tm* t);
 
 // 位示图表示，用于存放
 typedef struct BitMapItem{

@@ -61,7 +61,15 @@ void DelDataThread::run()
 // 执行进程，互斥访问内存
 void ExeDataThread::run()
 {
-    emit openUI();
+    TCB* tcb = new TCB();
+    int status = CGlobal::mManager->allocMemory(tcb);
+        // 先申请4块内容
+    if (status == STATUS_OK){
+        emit openUI(tcb);
+    } else {
+        emit showMessage("内存不足，无法打开更多的执行线程，请关闭一些执行线程再重试");
+    }
+    emit notify();
     this->exec();
 }
 

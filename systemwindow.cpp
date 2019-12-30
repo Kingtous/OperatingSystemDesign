@@ -12,6 +12,7 @@ SystemWindow::SystemWindow(QWidget *parent) :
 {
     //初始化全局变量
     cglobal = new CGlobal();
+    qRegisterMetaType<TCB*>("TCB*");
 
     ui->setupUi(this);
     this->setWindowTitle("系统模拟器：计科1702班17-20号作品");
@@ -105,7 +106,8 @@ void SystemWindow::createDataExeThread()
     ExeDataThread *thread = new ExeDataThread();
     QObject::connect(thread,SIGNAL(showWaitDialog(QDialog *)),this,SLOT(showDialog(QDialog *)));
     QObject::connect(thread,SIGNAL(closeWaitDialog(QDialog *)),this,SLOT(closeDialog(QDialog *)));
-    QObject::connect(thread,SIGNAL(openUI()),this,SLOT(openDataExeUI()));
+    connect(thread,SIGNAL(showMessage(QString)),this,SLOT(showMessage(QString)));
+    QObject::connect(thread,SIGNAL(openUI(TCB*)),this,SLOT(openDataExeUI(TCB*)));
     //连接信号
     thread->start();
     qDebug() <<"执行线程启动";
@@ -121,14 +123,17 @@ void SystemWindow::openDataGenUI()
 void SystemWindow::openDataDelUI()
 {
     dialog_delete_data * ddata = new dialog_delete_data(this);
+    // 删除信号
     connect(ddata,SIGNAL(dataUpdated()),this,SLOT(updateData()));
+    // 传入信号
+    connect(this,SLOT(updateData()),ddata,SLOT(refresh()));
     ddata->show();
 }
 
-void SystemWindow::openDataExeUI()
+void SystemWindow::openDataExeUI(TCB* tcb)
 {
     // 初始化其他
-    window_exe_data * exeform = new window_exe_data();
+    window_exe_data * exeform = new window_exe_data(nullptr,tcb);
     exeform->show();
 }
 
@@ -157,6 +162,13 @@ void SystemWindow::showDialog(QDialog *dialog)
 void SystemWindow::closeDialog(QDialog *dialog)
 {
     dialog->close();
+}
+
+void SystemWindow::showMessage(QString s)
+{
+    QMessageBox *box = new QMessageBox();
+    box->setText(s);
+    box->show();
 }
 
 void SystemWindow::updateMemoryUI()

@@ -38,15 +38,16 @@ private:
 protected:
     void closeEvent(QCloseEvent *event);
     void getFileList();
-
 signals:
     void dataUpdated();
 
 
-private slots:
+public slots:
     void on_pushButton_clicked();
     // 点击文件
     void showClick(QModelIndex index);
+    // 刷新文件列表
+    void refresh();
 
 };
 

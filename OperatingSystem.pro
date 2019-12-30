@@ -39,9 +39,7 @@ SOURCES += \
         memory_monitor.cpp \
         process_manager.cpp \
         systemwindow.cpp \
-        window_del_data.cpp \
-        window_exe_data.cpp \
-        window_gen_data.cpp
+        window_exe_data.cpp
 
 HEADERS += \
         cglobal.h \
@@ -58,9 +56,7 @@ HEADERS += \
         systemwindow.h \
         widget.h \
         mainwindow.h \
-        window_del_data.h \
-        window_exe_data.h \
-        window_gen_data.h
+        window_exe_data.h
 
 FORMS += \
         dialog_delete_data.ui \
