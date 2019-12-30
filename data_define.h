@@ -8,6 +8,8 @@
 // 目录项定义
 using namespace std;
 
+#define nullName 'NULL'
+#define nullData ''
 // 正常返回
 #define STATUS_OK 0
 // 线程阻塞状态
@@ -21,6 +23,7 @@ typedef struct FCB{
     // 文件结构，文件为0，文件夹为1
     int type;
     string fileName;//文件名
+    srting fileSize;//文件块数
     string owner;
     // tm为C++标准时间struct
     //     struct tm {
@@ -36,7 +39,22 @@ typedef struct FCB{
     //     }
     tm createTime; // 创建的时间
     // 在磁盘中存放的地址
-    queue<int> addrQueue;
+    //定义混合索引的数据结构
+    struct Index_File
+    {
+        //文件名
+        string fileName;
+        //文件大小
+        int fileSize;
+        //定义10个直接地址项
+        int addr[10] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+        //定义一次间址的地址项
+        Index_block_three *addr10;
+        //定义二次间址的地址项
+        Index_block_two *addr11;
+        //定义三次间址的地址项
+        Index_block_one *addr12;
+    };    
 }FCB;
 
 typedef struct BlockTime{
@@ -62,6 +80,9 @@ void outputStr(string s);
 typedef struct BitMapItem{
     bool isFree = true;
     string data;//注意，这个data最多只能有4个字符， 1个块4B
+    string filename;
+    string fileName;
+    int pageNumber;
     int x = -1; //位示图x轴，二维数组第1个下标
     int y = -1; //位示图y轴，二维数组第2个下标
 } BitFreeMap;

@@ -10,73 +10,97 @@
 // 初始化函数
 DiskManager::DiskManager()
 {
-    /*//分配1024*4B空间
-    SystemAddr = (char*)malloc(SystemSize*sizeof(char));
-    //初始化盘块的位示图
-    for(int i=0;i<BlockNum;i++)
-        SystemAddr[i]=0;//未使用
-    int BitMapSize = 256;//存放位示图要用到的空间
-    for(int i=0;i<BitMapSize;i++)
-        SystemAddr[i]=1;//已经使用*/
-    //SystemAddr = (char *)malloc(SystemSize*sizeof(char));
-    //BitMapItem Map[32][32];
+    //分配1024*4B空间
+    
     for(int i=0;i<1024;i++){
         Map[i] = true;
         Map[i].x = (i-1)/32;
         Map[i].y = (i-1)%32;
+        disk[i] = nullData;
     }
 }
-
+int DiskManager::deleteBlock(FCB *e){
+    for(int i=900;i<1024;i++){
+        if(e->fileName == this->Map[i].isFree){
+            this->Map[i].isFree = true;
+            this->Map[i].fileName = nullName;
+            this->Map[i].data = nullData;
+            this->disk[i] = nullData;
+        }
+    }
+    return STATUS_OK;
+}
 //对换区磁盘分配
-int DiskManager::getBlock(int blocksize){
-    int startBlock = 0;
+int DiskManager::changeBlock(FCB *e,string dt,int number){
     int sum = 0;
-    int b = 0;
-    int c = 0;
     for(int i=900;i<1024;i++){
         if(this->Map[i].isFree == true){
             if(sum==0)
-                startBlock=i;
-                //
             sum++;
-            if(sum==blocksize)
-            {
-                for(int j=startBlock;j<startBlock+BlockSize;j++){
-                    this->Map[j].isFree = false;
-                }
-                return startBlock;
-            }
+            this->Map[i].fileName = e->fileName;
+            this->Map[i].data = dt;
+            this->Map[i].pageNumber = number;
+            this->disk[i] = dt;
         }
         else sum=0;
     }
     printf("not found such series memory or memory is full\n");
-    return -1;
+    return STATUS_BUSY;
 }
 //释放盘块
-int DiskManager::ReleaseBlock(int blocknum,int blocksize){
-    int endblock = blocknum + blocksize;
-    for(int i=blocknum;i<endblock;i++)
-    this->Map[i].isFree = true;
-    return 0;
+int DiskManager::ReleaseBlock(FCB *e){
+    for(int i=0;i<1024;i++){
+        if(e->fileName == this->Map[i].isFree){
+            this->Map[i].isFree = true;
+            this->Map[i].fileName = nullName;
+            this->Map[i].data = nullData;
+            this->disk[i] = nullData;
+        }
+    }
+    return STATUS_OK;
 }
 // 从内存接收对换数据
-int DiskManager::receiveM(FCB * e){
-    
+int DiskManager::receiveM(FCB * e,int pageNumber,string data){
+    for(int i=900;i<1024;i++){
+        if(pageNumber == this->Map[i].pageNumber){
+            return STATUS_OK;
+            break;
+        }
+    }
+    changeBlock(e,pageNumber,data);
+    return STATUS_OK;
 }
 
 // 从目录管理接受删除
 int DiskManager::receiveF_delete(FCB * e){
-
+    for(int i=0;i<900;i++){
+        if(Map[i].fileName == e->fileName){
+            Map[i].isFree = true;
+            Map[i].fileName = nullName;
+            Map[i].data = nullData;
+            disk[i] = nullData;
+        }
+    }
+    return STATUS_OK;
 }
 
 // 从目录接受添加
-int DiskManager::receiveF_add(string data,string fileName){
-
+int DiskManager::receiveF_add(FCB *e,string data){
+    indexFile(e);
 }
 
 // 从目录中读取
 string DiskManager::receiveF_read(FCB* e){
-
+    int a[10] = e->Index_File.addr[10];
+    int sum = 0;
+    for(int i=0;i<10;i++){
+        if(a[i] != -1)sum++;
+    }
+    string a = '';
+    for(int j=0;j<sum;j++){
+        a = a + Map[a[j]].data;
+    }
+    return a;
 }
 
 
@@ -135,8 +159,9 @@ Index_block_one* indexBlockOne(int blocks[],int start,int end)
 }
 
 //给定一个文件的长度，给出模拟分配占用的磁盘块的情况
- DIndex_File* DiskManager::indexFile(int filesize)
+ Index_File* DiskManager::indexFile(FCB *e)
  {
+     int filesize = (e->fileSize)*4;
      //计算该文件需要多少盘块
      int block_num = filesize % BLOCK_SIZE == 0 ? filesize / BLOCK_SIZE : filesize / BLOCK_SIZE + 1;
      //定义保存所有盘块号的数组
@@ -158,12 +183,10 @@ Index_block_one* indexBlockOne(int blocks[],int start,int end)
          blocks[i] = temp;
      }
 
-//     for(int i = 0; i < block_num; i++)
-//        printf("%d ",blocks[i]);
 
-     Index_File *indexfile;
-     indexfile = (Index_File*) malloc(sizeof(Index_File));
+     Index_File *indexfile = new Index_File();
      indexfile->fileSize = filesize;
+     indexfile->fileName = e->fileName;
      //直接地址
      if(block_num <= 10)
      {
@@ -204,52 +227,3 @@ Index_block_one* indexBlockOne(int blocks[],int start,int end)
      }
      return indexfile;
  }
-
-
-//给定地址addrss和文件indexfile，找到地址对应的块号；
-int DiskManager::findBlock(int addrss, Index_File *indexfile)
-{
-    addrss++;
-    int block_num = addrss % BLOCK_SIZE == 0 ? addrss / BLOCK_SIZE : addrss / BLOCK_SIZE + 1;
-    int ans;
-    if(block_num <= 10)
-    {
-        ans = indexfile->addr[block_num - 1];
-    }
-    //一次间址
-    else if(block_num <= MAX_NUMBER_IN_BLOCK + 10)
-    {
-        block_num -= 10;
-        //计算盘块号
-        int index = block_num - 1;
-        //查找盘块
-        ans = indexfile->addr10->blocks[index];
-    }
-    //二次间址
-    else if(block_num <= MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK + MAX_NUMBER_IN_BLOCK + 10)
-    {
-        block_num -= MAX_NUMBER_IN_BLOCK + 10;
-        //计算第三层索引块的序号
-        int index_three = block_num % MAX_NUMBER_IN_BLOCK == 0 ? block_num / MAX_NUMBER_IN_BLOCK : block_num / MAX_NUMBER_IN_BLOCK + 1;
-        //计算盘块号
-        int index = block_num - ((index_three - 1) * MAX_NUMBER_IN_BLOCK);
-        //查找盘块
-        ans = indexfile->addr11->blocks[index_three - 1]->blocks[index - 1];
-    }
-    //三次间址
-    else if(block_num <= MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK + MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10)
-    {
-        block_num -= MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK + MAX_NUMBER_IN_BLOCK + 10;
-        //计算第二层索引块的序号
-        int index_two = block_num % (MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK) == 0 ?
-        block_num / (MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK) : block_num / (MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK) + 1;
-        block_num -= (index_two - 1) * (MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK);
-        //计算第二层索引块的序号
-        int index_three = block_num % MAX_NUMBER_IN_BLOCK == 0 ? block_num / MAX_NUMBER_IN_BLOCK : block_num / MAX_NUMBER_IN_BLOCK + 1;
-        //计算盘块号
-        int index = block_num - (index_three - 1) * MAX_NUMBER_IN_BLOCK;
-        //查找盘块
-        ans = indexfile->addr12->blocks[index_two - 1]->blocks[index_three - 1]->blocks[index - 1];
-    }
-    return ans;
-}
