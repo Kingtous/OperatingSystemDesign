@@ -32,17 +32,14 @@ int DiskManager::deleteBlock(FCB *e){
 }
 //对换区磁盘分配
 int DiskManager::changeBlock(FCB *e,string dt,int number){
-    int sum = 0;
     for(int i=900;i<1024;i++){
         if(this->Map[i].isFree == true){
-            if(sum==0)
-            sum++;
+            this->Map[i].isFree = false;
             this->Map[i].fileName = e->fileName;
             this->Map[i].data = dt;
             this->Map[i].pageNumber = number;
             this->disk[i] = dt;
         }
-        else sum=0;
     }
     return STATUS_BUSY;
 }
