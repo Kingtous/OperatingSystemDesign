@@ -4,6 +4,13 @@
 #include "data_define.h"
 #include "disk_manager.h"
 
+struct FCB{
+    string name;
+    string data;
+    string Creat_tm;
+    FCB *next;
+}*root,*now;
+
 class FolderManager
 {
 public:
@@ -19,10 +26,11 @@ public:
     int deleteData(FCB* element);
 
     // 读取数据
-    string getData(FCB * element);
+    string getData(FCB* element);
 
     // 输出信息：获取所有文件
     queue<FCB*> getFiles();
+
 };
 
 #endif // FOLDERMANAGER_H
