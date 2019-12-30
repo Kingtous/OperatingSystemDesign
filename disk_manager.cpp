@@ -1,19 +1,19 @@
 #include "disk_manager.h"
+#include <string.h>
+#include <stdlib.h>
 #define BlockNum     1024      //磁盘块的数目(编号从0开始)
 #define BlockSize    4         //磁盘块大小
 #define SystemSize   1024*4     //磁盘总容量
 #define exchange_x   (900-1)/32       //对换区首址x
 #define exchange_y   (900-1)%32       //对换区首址y
 #define BLOCK_SIZE   4
-#define MAX_NUMBER_IN_BLOCK 2
-#define MAX_BLOCK_NUMBER 900
 // 初始化函数
 DiskManager::DiskManager()
 {
     //分配1024*4B空间
-    
+
     for(int i=0;i<1024;i++){
-        Map[i] = true;
+        Map[i].isFree = true;
         Map[i].x = (i-1)/32;
         Map[i].y = (i-1)%32;
         disk[i] = nullData;
@@ -21,7 +21,7 @@ DiskManager::DiskManager()
 }
 int DiskManager::deleteBlock(FCB *e){
     for(int i=900;i<1024;i++){
-        if(e->fileName == this->Map[i].isFree){
+        if(e->fileName == this->Map[i].fileName){
             this->Map[i].isFree = true;
             this->Map[i].fileName = nullName;
             this->Map[i].data = nullData;
@@ -44,13 +44,12 @@ int DiskManager::changeBlock(FCB *e,string dt,int number){
         }
         else sum=0;
     }
-    printf("not found such series memory or memory is full\n");
     return STATUS_BUSY;
 }
 //释放盘块
 int DiskManager::ReleaseBlock(FCB *e){
     for(int i=0;i<1024;i++){
-        if(e->fileName == this->Map[i].isFree){
+        if(e->fileName == this->Map[i].fileName){
             this->Map[i].isFree = true;
             this->Map[i].fileName = nullName;
             this->Map[i].data = nullData;
@@ -67,7 +66,7 @@ int DiskManager::receiveM(FCB * e,int pageNumber,string data){
             break;
         }
     }
-    changeBlock(e,pageNumber,data);
+    changeBlock(e,data,pageNumber);
     return STATUS_OK;
 }
 
@@ -86,17 +85,28 @@ int DiskManager::receiveF_delete(FCB * e){
 
 // 从目录接受添加
 int DiskManager::receiveF_add(FCB *e,string data){
-    indexFile(e);
+    Index_File* iFile = indexFile(e);
+    int b[10];
+    int a;
+    for(int i=0;i<10;i++){
+        b[i] = iFile->addr[i];
+    }
+    e->iFile = iFile;
+    a = data.size();
+
 }
 
 // 从目录中读取
 string DiskManager::receiveF_read(FCB* e){
-    int a[10] = e->Index_File.addr[10];
+    int b[10];
+    for(int i=0;i<10;i++){
+        b[i] = e->iFile->addr[i];
+    }
     int sum = 0;
     for(int i=0;i<10;i++){
-        if(a[i] != -1)sum++;
+        if(b[i] != -1)sum++;
     }
-    string a = '';
+    string a = "";
     for(int j=0;j<sum;j++){
         a = a + Map[a[j]].data;
     }
