@@ -82,7 +82,7 @@ void MainWindow::on_pushButton_clicked()
     if (ui->edit_username->text().trimmed().size() == 0){
         // 不做任何操作
     } else {
-      CGlobal::userName = ui->edit_username->text();
+      User::userName = ui->edit_username->text().toStdString();
     }
     this->hide();
     sysWin.show();

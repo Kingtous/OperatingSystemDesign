@@ -49,6 +49,7 @@ private:
     QQueue<FCB*> tmpFCB;
     TCB* tcb;
     FCB* fileSelected;
+    bool isInUse;
 
 signals:
     // 做一次操作后，通知主线程更新

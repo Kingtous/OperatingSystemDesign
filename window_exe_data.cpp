@@ -20,6 +20,8 @@ window_exe_data::window_exe_data(QWidget *parent,TCB* tcb) :
     ll_loadFile = ui->text_loadFiles;
     nb_pageNumber = ui->nb_pageNumber;
     tb_outputBuffer = ui->tb_outputBuffer;
+    // 是否已经打开文件
+    isInUse = false;
 
     model = new QStandardItemModel();
     lv_fileList->setModel(model);
@@ -94,11 +96,13 @@ void window_exe_data::on_btn_load_clicked()
         box->setText("未选择文件");
         box->exec();
     } else {
+        // 上锁，在窗口关闭的时候解锁
+        CGlobal::fManager->lockFile(fileSelected);
+        isInUse = true;
         // 在创建数据执行线程时，已经在FCB中分配了4个内存，所以直接禁用调入内存等
         ((QPushButton*)sender())->setEnabled(false);
         lv_fileList->setDisabled(true);
         ll_loadFile->setText(QString::fromStdString(fileSelected->fileName));
-
         // 设置页号范围
         int blockSize = fileSelected->fileSize;
         if (blockSize <= 0){
@@ -131,6 +135,12 @@ void window_exe_data::closeEvent(QCloseEvent *event)
     } else {
         qDebug() << "警告！内存泄露，清除失败" ;
     }
+
+    if (isInUse && fileSelected != nullptr){
+        // 解锁
+        CGlobal::fManager->unlockFile(fileSelected);
+    }
+
     CGlobal::mSem->release();
     // 发射信号
     emit notifyUpdate();

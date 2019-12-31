@@ -19,6 +19,7 @@ using namespace std;
 #define STATUS_ERR -3
 #define STATUS_MEMORY_EXIST -4
 #define STATUS_EXCHANGE_PAGE -5
+#define STATUS_SAME_FILE -6
 
 typedef struct FCB{
     // 文件结构，文件为0，文件夹为1
@@ -46,9 +47,9 @@ typedef struct FCB{
 
 typedef struct BlockTime{
     //提供数据块进入模拟内存的时间
-    tm enterTime;
+    tm *enterTime;
     //访问时间
-    tm accessTime;
+    tm *accessTime;
 } BlockTime;
 
 // 线程管理模块
@@ -77,7 +78,7 @@ typedef struct MemoryBlockItem{
     int id; //内存块号
     bool isFree = true;
     string data;//注意，这个data最多只能有4个字符， 1个块4B
-    tm nearlyAccessTime;
+    BlockTime time;
 }MemoryBlockItem;
 
 
@@ -86,5 +87,6 @@ typedef struct ReadStat{
     string data; // 返回数据
     int mBlock; // 发生全局LRU置换的话，置换的是哪一块
 }  ReadStat;
+
 
 #endif // DATA_DEFINE_H

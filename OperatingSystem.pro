@@ -39,6 +39,7 @@ SOURCES += \
         memory_monitor.cpp \
         process_manager.cpp \
         systemwindow.cpp \
+        user.cpp \
         window_exe_data.cpp
 
 HEADERS += \
@@ -54,6 +55,7 @@ HEADERS += \
         memory_monitor.h \
         process_manager.h \
         systemwindow.h \
+        user.h \
         widget.h \
         mainwindow.h \
         window_exe_data.h

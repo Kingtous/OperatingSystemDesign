@@ -3,6 +3,7 @@
 
 #include <queue>
 #include "data_define.h"
+#include "user.h"
 
 class DiskManager
 {

@@ -35,7 +35,7 @@ queue<BitMapItem> DiskManager::getCurrentBitMap(){
             BitMapItem item;
             item.x=j;
             item.y=k;
-            item.data="测试数据";
+            item.data=User::userName;
             item.isFree = true;
             q.push(item);
         }

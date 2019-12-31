@@ -29,8 +29,8 @@ void dialog_gen_data::on_btn_submit_clicked()
     // 获取界面数据
     QString fileName = edit_fileName->text();
     QString fileContent = edit_fileContent->text();
-    FCB* fcb = CGlobal::fManager->generateData(fileContent.toStdString(),fileName.toStdString());
-    if(fcb == nullptr){
+    int status = CGlobal::fManager->generateData(fileContent.toStdString(),fileName.toStdString());
+    if(status == STATUS_ERR){
         // 失败了，弹出失败框
         QDialog * dialog = new QDialog(this);
         QVBoxLayout *layout = new QVBoxLayout();
