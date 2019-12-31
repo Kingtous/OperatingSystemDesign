@@ -20,6 +20,7 @@ DiskManager::DiskManager()
         SystemAddr[i]=1;//已经使用*/
     SystemAddr = (char *)malloc(SystemSize*sizeof(char));
     //BitMapItem Map[32][32];
+
     for(int i=0;i<1024;i++){
         Map[i] = true;
         Map[i].x = (i-1)/32;
