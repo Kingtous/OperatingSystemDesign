@@ -214,14 +214,14 @@ int DiskManager::receiveF_add(FCB *e,string data){
         if((j+4)>=(a-1)){
             this->Map[b[i]].isFree = false;
             this->Map[b[i]].fileName = e->fileName;
-            this->Map[b[i]].data = data.substr(j,a-1);
-            this->disk[b[i]] = data.substr(j,a-1);
+            this->Map[b[i]].data = data.substr(j,a-j);
+            this->disk[b[i]] = data.substr(j,a-j);
         }
         else{
             this->Map[b[i]].isFree = false;
             this->Map[b[i]].fileName = e->fileName;
-            this->Map[b[i]].data = data.substr(j,j+4);
-            this->disk[b[i]] = data.substr(j,j+4);
+            this->Map[b[i]].data = data.substr(j,4);
+            this->disk[b[i]] = data.substr(j,4);
         }
     }
     return STATUS_OK;
