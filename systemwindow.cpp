@@ -10,8 +10,6 @@ SystemWindow::SystemWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::SystemWindow)
 {
-    //初始化全局变量
-    cglobal = new CGlobal();
     qRegisterMetaType<TCB*>("TCB*");
 
     ui->setupUi(this);
@@ -36,6 +34,7 @@ SystemWindow::SystemWindow(QWidget *parent) :
     connect(btn_del_data,SIGNAL(clicked()),SLOT(createDataDelThread()));
     connect(btn_exe_data,SIGNAL(clicked()),SLOT(createDataExeThread()));
 
+    // 初始化布局
     layout->addWidget(functionLabel);
     h1Layout = new QHBoxLayout();
     h1Layout->addWidget(btn_gen_data);
@@ -53,6 +52,7 @@ SystemWindow::SystemWindow(QWidget *parent) :
     h2Layout->addWidget(btn_memory_monitor);
     h2Layout->addWidget(btn_disk_monitor);
     layout->addLayout(h2Layout);
+
     // 状态输出
     connect(btn_memory_monitor,SIGNAL(clicked()),SLOT(showBtnTextOnStatusBar()));
     connect(btn_disk_monitor,SIGNAL(clicked()),SLOT(showBtnTextOnStatusBar()));

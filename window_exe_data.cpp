@@ -83,7 +83,6 @@ void window_exe_data::updateFiles()
         q.pop();
         tmpFCB.push_back(fcb);
     }
-
 }
 
 // 锁定一个数据执行线程只能访问一个文件，要访问第二个文件需要打开多个窗口

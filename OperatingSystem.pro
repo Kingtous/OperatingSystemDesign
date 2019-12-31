@@ -65,9 +65,7 @@ FORMS += \
         mainwindow.ui \
         memory_monitor.ui \
         systemwindow.ui \
-        window_del_data.ui \
-        window_exe_data.ui \
-        window_gen_data.ui
+        window_exe_data.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

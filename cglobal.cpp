@@ -6,6 +6,7 @@ CGlobal::CGlobal()
 
 }
 
+QString CGlobal::userName = "未命名";
 // 初始化内存互斥信号量
 QSemaphore* CGlobal::mSem = new QSemaphore(1);
 QSemaphore* CGlobal::delThreadSem = new QSemaphore(1);

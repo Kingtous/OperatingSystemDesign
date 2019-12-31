@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTableView>
+#include <QStandardItem>
+#include <QStandardItemModel>
 #include "systemwindow.h"
 namespace Ui {
     class MainWindow;
@@ -24,6 +27,10 @@ private slots:
 private:
     Ui::MainWindow *ui;
     SystemWindow sysWin;
+    CGlobal* cglobal;
+
+    //表格属性
+    QStandardItemModel * model;
 
 };
 

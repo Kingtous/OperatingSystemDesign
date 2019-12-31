@@ -24,6 +24,9 @@ public:
     static QSemaphore* genThreadSem;
     static QSemaphore* delThreadSem;
 
+    // 用户登录名
+    static QString userName;
+
 };
 
 

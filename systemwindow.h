@@ -27,8 +27,6 @@ class SystemWindow : public QMainWindow
 public:
     explicit SystemWindow(QWidget *parent = nullptr);
     ~SystemWindow();
-    // 初始化全局变量
-    CGlobal *cglobal;
 
     // 功能
     QLabel * functionLabel;
