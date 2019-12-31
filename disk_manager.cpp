@@ -10,6 +10,7 @@
 // 初始化函数
 DiskManager::DiskManager()
 {
+<<<<<<< Updated upstream
     /*//分配1024*4B空间
     SystemAddr = (char*)malloc(SystemSize*sizeof(char));
     //初始化盘块的位示图
@@ -20,7 +21,10 @@ DiskManager::DiskManager()
         SystemAddr[i]=1;//已经使用*/
     SystemAddr = (char *)malloc(SystemSize*sizeof(char));
     //BitMapItem Map[32][32];
+=======
+    //分配1024*4B空间
 
+>>>>>>> Stashed changes
     for(int i=0;i<1024;i++){
         Map[i] = true;
         Map[i].x = (i-1)/32;
