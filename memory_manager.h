@@ -16,7 +16,7 @@ public:
     int allocMemory(TCB *t);
 
     // 释放TCB里面的数据
-    bool freeBlock(TCB *t);
+    int freeBlock(TCB *t);
 
     // 从内存读取数据，index
     string read(TCB *t,int pageIndex);

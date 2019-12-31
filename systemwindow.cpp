@@ -126,7 +126,7 @@ void SystemWindow::openDataDelUI()
     // 删除信号
     connect(ddata,SIGNAL(dataUpdated()),this,SLOT(updateData()));
     // 传入信号
-    connect(this,SLOT(updateData()),ddata,SLOT(refresh()));
+    connect(this,SIGNAL(notifyUpdate()),ddata,SLOT(refresh()));
     ddata->show();
 }
 
@@ -134,6 +134,10 @@ void SystemWindow::openDataExeUI(TCB* tcb)
 {
     // 初始化其他
     window_exe_data * exeform = new window_exe_data(nullptr,tcb);
+    // 删除信号
+    connect(exeform,SIGNAL(notifyUpdate()),this,SLOT(updateData()));
+    // 传入信号,通知更新文件信息
+    connect(this,SIGNAL(notifyUpdate()),exeform,SLOT(updateFiles()));
     exeform->show();
 }
 

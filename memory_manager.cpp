@@ -13,8 +13,8 @@ int MemoryManager::allocMemory(TCB *t){
 }
 
 // 释放TCB里面的数据
-bool MemoryManager::freeBlock(TCB *t){
-
+int MemoryManager::freeBlock(TCB *t){
+    return  STATUS_OK;
 }
 
 // 从内存读取数据，需要将strIndex/4转成页号

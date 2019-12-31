@@ -33,7 +33,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>调入内存</string>
+    <string>锁定</string>
    </property>
   </widget>
   <widget class="QLabel" name="label">
@@ -99,6 +99,9 @@ p, li { white-space: pre-wrap; }
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>460</x>

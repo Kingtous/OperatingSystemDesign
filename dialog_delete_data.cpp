@@ -6,6 +6,7 @@ dialog_delete_data::dialog_delete_data(QWidget *parent) :
     ui(new Ui::dialog_delete_data)
 {
     ui->setupUi(this);
+    this->setWindowTitle("删除数据");
     // 关闭即销毁
     this->setAttribute  (Qt::WA_DeleteOnClose,true);
     model = new QStandardItemModel(this);

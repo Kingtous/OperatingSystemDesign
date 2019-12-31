@@ -6,7 +6,7 @@ dialog_gen_data::dialog_gen_data(QWidget *parent) :
     ui(new Ui::dialog_gen_data)
 {
     ui->setupUi(this);
-
+    this->setWindowTitle("生成数据");
     // 关闭即销毁
     this->setAttribute(Qt::WA_DeleteOnClose,true);
     this->edit_fileName = ui->edit_fileName;

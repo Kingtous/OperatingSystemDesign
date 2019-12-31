@@ -10,7 +10,7 @@ int FolderManager::deleteData(FCB* element){
 
     // 删除磁盘中FCB
     this->dManager->receiveF_delete(element);
-    return STATUS_ERR;
+    return STATUS_OK;
 }
 
 // 输出信息：获取所有文件

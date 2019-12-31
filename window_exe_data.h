@@ -5,10 +5,13 @@
 #include <QListView>
 #include <QMainWindow>
 #include <QPushButton>
+#include <QDebug>
 #include <QWidget>
+#include <QMessageBox>
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QQueue>
+#include <QSpinBox>
 
 #include "data_define.h"
 #include "cglobal.h"
@@ -27,6 +30,7 @@ public:
 
     QPushButton *btnRead;
 
+
 private:
     Ui::window_exe_data *ui;
 
@@ -37,6 +41,7 @@ private:
     QLabel * ll_fileName;
     QLabel * ll_loadFile;
     QStandardItemModel * model;
+    QSpinBox * nb_pageNumber;
 
     QQueue<FCB*> tmpFCB;
     TCB* tcb;
@@ -46,7 +51,7 @@ signals:
     // 做一次操作后，通知主线程更新
     void notifyUpdate();
 
-private slots:
+public slots:
     void on_pushButton_clicked();
     // 更新文件列表
     void updateFiles();
@@ -54,6 +59,10 @@ private slots:
     void on_btn_load_clicked();
     // 选择了文件
     void showClick(QModelIndex index);
+
+    // QWidget interface
+protected:
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // EXE_FORM_H
