@@ -1,8 +1,6 @@
 #include "gendatathread.h"
 #include <QLabel>
 
-
-
 // 构造函数
 GenDataThread::GenDataThread()
 {

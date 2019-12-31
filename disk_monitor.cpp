@@ -52,9 +52,13 @@ void DiskMonitor::updateDiskUI()
             freeBlockCnt++;
         }
         totalBlock++;
-        QStandardItem * qItem =new QStandardItem(QString::fromStdString(item.data));
-        model->setItem(item.x,item.y,qItem);
-        this->bMItem[item.x][item.y] =item;
+        if (item.x >=0 && item.y >=0 && item.x <32 && item.y <32){
+            QStandardItem * qItem =new QStandardItem(QString::fromStdString(item.data));
+            model->setItem(item.x,item.y,qItem);
+            this->bMItem[item.x][item.y] =item;
+        } else {
+            qDebug() << "警告：试图写入非法UI空间";
+        }
         qMapTemp.pop();
     }
     ll_totoal_free->setText(QString::number(freeBlockCnt)+"/"+QString::number(totalBlock));
