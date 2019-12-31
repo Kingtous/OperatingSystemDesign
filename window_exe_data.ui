@@ -52,7 +52,7 @@
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QTextBrowser" name="text_outputBuffer">
+  <widget class="QTextBrowser" name="tb_outputBuffer">
    <property name="geometry">
     <rect>
      <x>250</x>

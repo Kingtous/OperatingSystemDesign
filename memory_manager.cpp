@@ -18,8 +18,12 @@ int MemoryManager::freeBlock(TCB *t){
 }
 
 // 从内存读取数据，需要将strIndex/4转成页号
-string MemoryManager::read(TCB *t,int pageIndex){
-
+ReadStat MemoryManager::read(TCB *t,int pageIndex){
+    ReadStat stat;
+    stat.code = STATUS_EXCHANGE_PAGE;
+    stat.data = "测试数据";
+    stat.mBlock = -1;
+    return  stat;
 }
 
 // 回写数据，需要将strIndex/4转成页号

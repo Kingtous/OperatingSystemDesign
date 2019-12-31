@@ -19,6 +19,7 @@ window_exe_data::window_exe_data(QWidget *parent,TCB* tcb) :
     ll_createTime = ui->text_createTime;
     ll_loadFile = ui->text_loadFiles;
     nb_pageNumber = ui->nb_pageNumber;
+    tb_outputBuffer = ui->tb_outputBuffer;
 
     model = new QStandardItemModel();
     lv_fileList->setModel(model);
@@ -38,13 +39,30 @@ void window_exe_data::on_pushButton_clicked()
     // 加锁
     CGlobal::mSem->acquire();
     //ui->pushButton->setDisabled(true);
-
     // 获取页号数
     int page = nb_pageNumber->value();
     // 在内存中读取数据
-    string value = CGlobal::mManager->read(tcb,page);
+    auto status = CGlobal::mManager->read(tcb,page);
+    // 通过string来判断
+    if (status.code == STATUS_OK){
+        // 没有发生换页
 
-
+    } else if (status.code == STATUS_MEMORY_EXIST){
+        // 直接引用内存
+        QMessageBox * box = new QMessageBox();
+        box->setText("内存中已存在该页，内存块号为："+QString::number(status.mBlock));
+        box->exec();
+    }
+    else if (status.code == STATUS_EXCHANGE_PAGE){
+        // 发生了换页
+        QMessageBox * box = new QMessageBox();
+        box->setText("发生LRU全局置换，替换的内存块号为："+QString::number(status.mBlock));
+        box->exec();
+    }
+    // 更新UI
+    tb_outputBuffer->append("第"+QString::number(page)+"页数据："+QString::fromStdString(status.data));
+    // 通知主线程
+    emit notifyUpdate();
     // 解锁
     CGlobal::mSem->release();
 }
@@ -89,7 +107,7 @@ void window_exe_data::on_btn_load_clicked()
             // 不允许读入
         } else {
             nb_pageNumber->setRange(0,blockSize-1);
-            btnRead->setEnabled(true);
+            ui->pushButton->setEnabled(true);
         }
     }
 }

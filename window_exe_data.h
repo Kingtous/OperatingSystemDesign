@@ -12,6 +12,7 @@
 #include <QStandardItemModel>
 #include <QQueue>
 #include <QSpinBox>
+#include <QTextBrowser>
 
 #include "data_define.h"
 #include "cglobal.h"
@@ -28,11 +29,12 @@ public:
     explicit window_exe_data(QWidget *parent = nullptr,TCB* tcb=nullptr);
     ~window_exe_data();
 
-    QPushButton *btnRead;
+
 
 
 private:
     Ui::window_exe_data *ui;
+    QPushButton *btnRead;
 
     QListView* lv_fileList;
     QLabel * ll_createTime;
@@ -42,6 +44,7 @@ private:
     QLabel * ll_loadFile;
     QStandardItemModel * model;
     QSpinBox * nb_pageNumber;
+    QTextBrowser * tb_outputBuffer;
 
     QQueue<FCB*> tmpFCB;
     TCB* tcb;

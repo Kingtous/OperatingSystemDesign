@@ -23,6 +23,7 @@ queue<FCB*> FolderManager::getFiles(){
         fcb->type = 0;
         fcb->owner = "jintao";
         fcb->fileName = "文件";
+        fcb->fileSize = 1;
         time_t timep = time(0);
         fcb->createTime = localtime(&timep);
         q.push(fcb);
