@@ -10,10 +10,10 @@ public:
     // 暂存磁盘管理的指针变量
     DiskManager * dManager;
     //FCN保存的
-    FCB fileTable[128];
+    FCB* fileTable[128];
     bool fileLocks[128];
     //初始化
-    FolderManager* fManager;(DiskManager * dManager);
+    FolderManager(DiskManager * dManager);
     // 添加目录项，注意：添加时记得往element里面填写tm时间数据
     int generateData(string data,string fileName);
     // 按照指针指向的FolderElement删除目录项

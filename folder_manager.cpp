@@ -6,10 +6,11 @@ FolderManager::FolderManager(DiskManager * dManager)
 {
         this->dManager = dManager;
         for(int i=0;i<128;i++){
-            fileTable[i].fileName = "";
-            fileTable[i].fileSize = 0;
-            fileTable[i].owner = "";
-            fileTable[i].type = 0;
+            fileTable[i] = new FCB();
+            fileTable[i]->fileName = "";
+            fileTable[i]->fileSize = 0;
+            fileTable[i]->owner = "";
+            fileTable[i]->type = 0;
             fileLocks[i] = false;
         }
 
@@ -27,8 +28,8 @@ int FolderManager::deleteData(FCB* element){
 queue<FCB*> FolderManager::getFiles(){
         queue<FCB*> q;
         for(int i=0;i<128;i++){
-            if(fileTable[i].fileName != ""){
-                q.push(&fileTable[i]);
+            if(fileTable[i]->fileName != ""){
+                q.push(fileTable[i]);
             }
             else continue;
         }
@@ -38,21 +39,29 @@ queue<FCB*> FolderManager::getFiles(){
 // 创建新文件，注意：添加时记得往element里面填写tm时间数据
 int FolderManager::generateData(string data,string fileName){
         for(int k=0;k<128;k++){
-            if(fileTable[k].fileName == fileName){
+            if(fileTable[k]->fileName == fileName){
                 return STATUS_SAME_FILE;
             }
         }
         // 获取时间
         for(int i=0;i<128;i++){
-            if(fileTable[i].fileName == ""){
-                fileTable[i].fileName = fileName;
+            if(fileTable[i]->fileName == ""){
+                fileTable[i]->fileName = fileName;
+                int a;
+                a = data.size();
+                int b;
+                if(a%4 == 0){
+                    b = a/4;
+                }
+                else b = (a/4)+1;
+                fileTable[i]->fileSize = b;
                 time_t t = time(0);
-                fileTable[i].createTime = localtime(&t);
-                this->dManager->receiveF_add(fileTable[i],fileName);
+                fileTable[i]->createTime = localtime(&t);
+                fileTable[i]->owner = User::userName;
+                this->dManager->receiveF_add(fileTable[i],data);
                 break;
             }
         }
-
         return STATUS_OK;
 }
 
@@ -63,7 +72,7 @@ string FolderManager::getData(FCB * element){
 }
 int FolderManager::lockFile(FCB * fcb){
     for(int i=0;i<128;i++){
-        if(fcb->fileName == fileTable[i].fileName){
+        if(fcb->fileName == fileTable[i]->fileName){
             fileLocks[i] = true;
         }
     }
@@ -71,7 +80,7 @@ int FolderManager::lockFile(FCB * fcb){
 }
 int FolderManager::unlockFile(FCB * fcb){
     for(int i=0;i<128;i++){
-        if(fcb->fileName == fileTable[i].fileName){
+        if(fcb->fileName == fileTable[i]->fileName){
             fileLocks[i] = false;
         }
     }
