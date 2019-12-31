@@ -1,6 +1,7 @@
 #ifndef DATA_DEFINE_H
 #define DATA_DEFINE_H
-
+#define MAX_NUMBER_IN_BLOCK 2
+#define MAX_BLOCK_NUMBER 900
 #include <string>
 #include <time.h>
 #include <queue>
@@ -8,6 +9,8 @@
 // 目录项定义
 using namespace std;
 
+#define nullName "NUll"
+#define nullData ""
 // 正常返回
 #define STATUS_OK 0
 // 线程阻塞状态
@@ -16,11 +19,46 @@ using namespace std;
 #define STATUS_FULL -2
 // 错误
 #define STATUS_ERR -3
+//定义一次间址的索引块、二次和三次间址的最后一层索引快；
+struct Index_block_three
+{
+    int blocks[MAX_NUMBER_IN_BLOCK];
+};
+
+//定义二次间址的第一个索引块，和三次间址的第二个索引块
+struct Index_block_two
+{
+    Index_block_three *blocks[MAX_NUMBER_IN_BLOCK];
+};
+
+//定义三次间址的第一个索引块
+struct Index_block_one
+{
+    Index_block_two *blocks[MAX_NUMBER_IN_BLOCK];
+};
+//定义混合索引的数据结构
+typedef struct Index_File
+{
+    //文件名
+    string fileName;
+    //文件大小
+    int fileSize;
+    //定义10个直接地址项
+    int addr[10] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+    //定义一次间址的地址项
+    Index_block_three *addr10;
+    //定义二次间址的地址项
+    Index_block_two *addr11;
+    //定义三次间址的地址项
+    Index_block_one *addr12;
+}Index_File;
+
 
 typedef struct FCB{
     // 文件结构，文件为0，文件夹为1
     int type;
     string fileName;//文件名
+    int fileSize;//文件块数
     string owner;
     // tm为C++标准时间struct
     //     struct tm {
@@ -34,9 +72,9 @@ typedef struct FCB{
     //       int tm_yday;  // 一年中的第几天，范围从 0 到 365，从 1 月 1 日算起
     //       int tm_isdst; // 夏令时
     //     }
-    tm createTime; // 创建的时间
-    // 在磁盘中存放的地址
-    queue<int> addrQueue;
+    tm* createTime; // 创建的时间
+    Index_File* iFile;
+
 }FCB;
 
 typedef struct BlockTime{
@@ -62,6 +100,8 @@ void outputStr(string s);
 typedef struct BitMapItem{
     bool isFree = true;
     string data;//注意，这个data最多只能有4个字符， 1个块4B
+    string fileName;
+    int pageNumber;
     int x = -1; //位示图x轴，二维数组第1个下标
     int y = -1; //位示图y轴，二维数组第2个下标
 } BitFreeMap;
