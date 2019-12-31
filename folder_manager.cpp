@@ -10,19 +10,46 @@ int FolderManager::deleteData(FCB* element){
 
     // 删除磁盘中FCB
     this->dManager->receiveF_delete(element);
+    return STATUS_OK;
 }
 
 // 输出信息：获取所有文件
 queue<FCB*> FolderManager::getFiles(){
-
+    // FCB模拟
+    queue<FCB*> q;
+    int i=10;
+    while(i--){
+        FCB* fcb = new FCB();
+        fcb->type = 0;
+        fcb->owner = User::userName;
+        fcb->fileName = "文件";
+        fcb->fileSize = 1;
+        time_t timep = time(0);
+        fcb->createTime = localtime(&timep);
+        q.push(fcb);
+    }
+    return q;
 }
 
 // 添加目录项，注意：添加时记得往element里面填写tm时间数据
-FCB* FolderManager::generateData(string data,string fileName){
-
+int FolderManager::generateData(string data,string fileName){
+    return STATUS_OK;
 }
 
 // 读取数据
 string FolderManager::getData(FCB * element){
+
+
+}
+
+// 给文件上锁
+int FolderManager::lockFile(FCB *fcb)
+{
+
+}
+
+// 给文件解锁
+int FolderManager::unlockFile(FCB *fcb)
+{
 
 }

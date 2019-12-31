@@ -34,8 +34,4 @@ public:
 
 
 
-
-
-
-
 #endif // PROCESS_MANAGER_H

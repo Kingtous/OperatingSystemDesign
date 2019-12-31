@@ -3,7 +3,7 @@
 #define BLOCK_SIZE   4
 #include <queue>
 #include "data_define.h"
-
+#include "user.h"
 
 class DiskManager
 {
@@ -38,7 +38,5 @@ public:
     Index_File* indexFile(FCB *e);
 
 };
-
-
 
 #endif // DISKMANAGER_H

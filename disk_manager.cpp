@@ -14,8 +14,9 @@ DiskManager::DiskManager()
 
     for(int i=0;i<1024;i++){
         Map[i].isFree = true;
-        Map[i].x = (i-1)/32;
-        Map[i].y = (i-1)%32;
+        Map[i].x = (i)/32;
+        Map[i].y = (i)%32;
+        Map[i].data = nullData;
         disk[i] = nullData;
     }
 }
@@ -251,4 +252,3 @@ queue<BitMapItem> DiskManager::getCurrentBitMap(){
     for(int i=0;i<1024;i++)q.push(this->Map[i]);
     return q;
 }
-
