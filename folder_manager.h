@@ -4,13 +4,6 @@
 #include "data_define.h"
 #include <time.h>
 
-struct FCB{
-    string name;
-    string data;
-    string Creat_tm;
-    FCB *next;
-}*root,*now;
-
 class FolderManager
 {
 public:
@@ -27,18 +20,12 @@ public:
     int deleteData(FCB* element);
     // 读取数据
     string getData(FCB* element);
-<<<<<<< Updated upstream
-
-    // 输出信息：获取所有文件
-    queue<FCB*> getFiles();
-=======
     // 输出信息：获取所有文件
     queue<FCB*> getFiles();
     //上锁
     int lockFile(FCB * fcb);
     //不上锁
     int unlockFile(FCB * fcb);
->>>>>>> Stashed changes
 
 };
 
