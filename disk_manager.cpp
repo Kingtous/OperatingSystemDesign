@@ -193,11 +193,11 @@ string DiskManager::returnM(FCB* e,int number){
     for(int i=900;i<1024;i++){
         if(number == this->Map[i].pageNumber && e->fileName == this->Map[i].fileName){
             dataReturn = this->Map[i].data;
-            return STATUS_OK;
+            return dataReturn;
             break;
         }
     }
-    return dataReturn;
+    
 }
 
 // 目录管理申请删除

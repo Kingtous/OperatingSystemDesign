@@ -12,6 +12,7 @@ using namespace std;
 
 #define nullName "NUll"
 #define nullData "NULL"
+#define errorData "ERROR_RETURN"
 // 正常返回
 #define STATUS_OK 0
 // 线程阻塞状态
