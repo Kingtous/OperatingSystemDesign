@@ -65,6 +65,9 @@ public:
     //更新内存块分配时间
     static void getEnterTime(MemoryBlock *mb);
 
+    //更新页表链
+    void creatPageTable(TCB *t);
+
     //处理缺页
     int loosePage(TCB *t, int pageIndex, string data);
 

@@ -63,7 +63,8 @@ void ExeDataThread::run()
 {
     TCB* tcb = new TCB();
     // 线程向内存管理器申请内存
-    int status = CGlobal::mManager->allocMemory(tcb);
+//    int status = CGlobal::mManager->allocMemory(tcb);
+    int status = STATUS_OK;
         // 先申请4块内容
     if (status == STATUS_OK){
         // 通知主线程打开UI，调用tcb
