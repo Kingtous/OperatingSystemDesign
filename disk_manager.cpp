@@ -133,18 +133,6 @@ Index_File* DiskManager::indexFile(int filesize)
     }
     return indexfile;
 }
-
-int DiskManager::deleteBlock(FCB *e){
-    for(int i=900;i<1024;i++){
-        if(e->fileName == this->Map[i].fileName){
-            this->Map[i].isFree = true;
-            this->Map[i].fileName = nullName;
-            this->Map[i].data = nullData;
-            this->disk[i] = nullData;
-        }
-    }
-    return STATUS_OK;
-}
 //对换区磁盘分配
 int DiskManager::changeBlock(FCB *e,string data,int number){
     for(int i=900;i<1024;i++){
@@ -159,6 +147,18 @@ int DiskManager::changeBlock(FCB *e,string data,int number){
     }
     return STATUS_BUSY;
 }
+//删除对换区空间
+int DiskManager::deleteBlock(FCB *e){
+    for(int i=900;i<1024;i++){
+        if(e->fileName == this->Map[i].fileName){
+            this->Map[i].isFree = true;
+            this->Map[i].fileName = nullName;
+            this->Map[i].data = nullData;
+            this->disk[i] = nullData;
+        }
+    }
+    return STATUS_OK;
+}
 //释放盘块
 int DiskManager::ReleaseBlock(FCB *e){
     for(int i=0;i<1024;i++){
@@ -171,8 +171,8 @@ int DiskManager::ReleaseBlock(FCB *e){
     }
     return STATUS_OK;
 }
-// 从内存接收对换数据
-int DiskManager::receiveM(FCB * e,int pageNumber,string data){
+// 从内存接收对换数据  换入数据
+int DiskManager::receiveM(FCB* e,int pageNumber,string data){
     if (pageNumber == -1){
         // 如果是空页，则直接返回
         return STATUS_OK;
@@ -186,8 +186,21 @@ int DiskManager::receiveM(FCB * e,int pageNumber,string data){
     changeBlock(e,data,pageNumber);
     return STATUS_OK;
 }
+//给内存输出对换数据  换出数据
+string DiskManager::returnM(FCB* e,int number){
+    int temp;
+    string dataReturn;
+    for(int i=900;i<1024;i++){
+        if(number == this->Map[i].pageNumber && e->fileName == this->Map[i].fileName){
+            dataReturn = this->Map[i].data;
+            return STATUS_OK;
+            break;
+        }
+    }
+    return dataReturn;
+}
 
-// 从目录管理接受删除
+// 目录管理申请删除
 int DiskManager::receiveF_delete(FCB * e){
     for(int i=0;i<900;i++){
         if(Map[i].fileName == e->fileName){
@@ -200,7 +213,7 @@ int DiskManager::receiveF_delete(FCB * e){
     return STATUS_OK;
 }
 
-// 从目录接受添加
+// 目录管理申请添加
 int DiskManager::receiveF_add(FCB *e,string data){
     // data在UI上限定死了，最大为96
     int a;
@@ -380,7 +393,7 @@ int DiskManager::receiveF_add(FCB *e,string data){
     return STATUS_OK;
 }
 
-// 从目录中读取
+// 目录管理申请读取
 string DiskManager::receiveF_read(FCB* e){
     int fnumber = e->fileSize;
     int b[24] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
