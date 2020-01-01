@@ -6,6 +6,10 @@ dialog_gen_data::dialog_gen_data(QWidget *parent) :
     ui(new Ui::dialog_gen_data)
 {
     ui->setupUi(this);
+    // 初始化
+    changeInputCount("");
+    // 绑定
+    connect(ui->edit_fileContent,SIGNAL(textChanged(const QString &)),this,SLOT(changeInputCount(const QString &)));
     this->setWindowTitle("生成数据");
     // 关闭即销毁
     this->setAttribute(Qt::WA_DeleteOnClose,true);
@@ -54,4 +58,9 @@ void dialog_gen_data::on_btn_submit_clicked()
 void dialog_gen_data::on_message_btn_ok()
 {
     ((QDialog*)((QPushButton*)sender())->parent())->close();
+}
+
+void dialog_gen_data::changeInputCount(const QString &text)
+{
+    ui->txt_inputNum->setText(QString::number(text.size())+"/96");
 }

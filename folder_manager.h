@@ -3,6 +3,7 @@
 #include "disk_manager.h"
 #include "data_define.h"
 #include <time.h>
+#include "user.h"
 
 class FolderManager
 {

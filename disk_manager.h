@@ -3,7 +3,7 @@
 #define BLOCK_SIZE   4
 #include <queue>
 #include "data_define.h"
-#include "user.h"
+
 
 class DiskManager
 {
@@ -35,8 +35,10 @@ public:
     // 输出接口，输出位示图，注意：输出当前位示图中的每一个元素，用queue传值
     queue<BitMapItem> getCurrentBitMap();
 
-    Index_File* indexFile(FCB *e);
+    Index_File* indexFile(int a);
 
 };
+
+
 
 #endif // DISKMANAGER_H

@@ -37,7 +37,6 @@ SOURCES += \
         mainwindow.cpp \
         memory_manager.cpp \
         memory_monitor.cpp \
-        process_manager.cpp \
         systemwindow.cpp \
         user.cpp \
         window_exe_data.cpp
@@ -53,7 +52,6 @@ HEADERS += \
         gendatathread.h \
         memory_manager.h \
         memory_monitor.h \
-        process_manager.h \
         systemwindow.h \
         user.h \
         widget.h \

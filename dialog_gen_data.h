@@ -35,6 +35,7 @@ protected:
 private slots:
     void on_btn_submit_clicked();
     void on_message_btn_ok();
+    void changeInputCount(const QString &text);
 };
 
 #endif // DIALOG_GEN_DATA_H

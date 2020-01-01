@@ -80,6 +80,7 @@ typedef struct FCB{
     tm createTime; // 创建的时间
     // 在磁盘中存放的地址
     Index_File* iFile;
+
 }FCB;
 
 typedef struct BlockTime{
@@ -106,8 +107,8 @@ QString parseTMSimple(tm t);
 typedef struct BitMapItem{
     bool isFree = true;
     string data;//注意，这个data最多只能有4个字符， 1个块4B
-    string fileName; //文件名
-    int pageNumber; // 页号
+    string fileName;
+    int pageNumber = -1;
     int x = -1; //位示图x轴，二维数组第1个下标
     int y = -1; //位示图y轴，二维数组第2个下标
 } BitFreeMap;
