@@ -6,12 +6,11 @@
 #include <time.h>
 #include <queue>
 #include <iostream>
-#include <QString>
 // 目录项定义
 using namespace std;
 
 #define nullName "NUll"
-#define nullData "NULL"
+#define nullData ""
 // 正常返回
 #define STATUS_OK 0
 // 线程阻塞状态
@@ -20,10 +19,8 @@ using namespace std;
 #define STATUS_FULL -2
 // 错误
 #define STATUS_ERR -3
-#define STATUS_MEMORY_EXIST -4
-#define STATUS_EXCHANGE_PAGE -5
+//
 #define STATUS_SAME_FILE -6
-//定义一次间址的索引块、二次和三次间址的最后一层索引快；
 struct Index_block_three
 {
     int blocks[MAX_NUMBER_IN_BLOCK];
@@ -76,21 +73,21 @@ typedef struct FCB{
     //       int tm_yday;  // 一年中的第几天，范围从 0 到 365，从 1 月 1 日算起
     //       int tm_isdst; // 夏令时
     //     }
-    bool isInUse; // 是否正在使用
     tm* createTime; // 创建的时间
-    // 在磁盘中存放的地址
     Index_File* iFile;
+
 }FCB;
 
 typedef struct BlockTime{
     //提供数据块进入模拟内存的时间
-    tm *enterTime;
+    tm enterTime;
     //访问时间
-    tm *accessTime;
+    tm accessTime;
 } BlockTime;
 
 // 线程管理模块
 typedef struct TCB{
+    TCB();
     FCB * fcb;
     string data;
     bool isAlloc = false; //分配后要把isAlloc改为true
@@ -99,14 +96,13 @@ typedef struct TCB{
 
 // 输出数据
 void outputStr(string s);
-QString parseTM(tm* t);
 
 // 位示图表示，用于存放
 typedef struct BitMapItem{
     bool isFree = true;
     string data;//注意，这个data最多只能有4个字符， 1个块4B
-    string fileName; //文件名
-    int pageNumber; // 页号
+    string fileName;
+    int pageNumber = -1;
     int x = -1; //位示图x轴，二维数组第1个下标
     int y = -1; //位示图y轴，二维数组第2个下标
 } BitFreeMap;
@@ -116,15 +112,6 @@ typedef struct MemoryBlockItem{
     int id; //内存块号
     bool isFree = true;
     string data;//注意，这个data最多只能有4个字符， 1个块4B
-    BlockTime time;
 }MemoryBlockItem;
-
-
-typedef struct ReadStat{
-    int code; // 返回值
-    string data; // 返回数据
-    int mBlock; // 发生全局LRU置换的话，置换的是哪一块
-}  ReadStat;
-
 
 #endif // DATA_DEFINE_H

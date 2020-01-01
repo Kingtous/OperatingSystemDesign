@@ -1,55 +1,89 @@
 #include "folder_manager.h"
+#include "data_define.h"
+#include <queue>
 
 FolderManager::FolderManager(DiskManager * dManager)
 {
-    this->dManager = dManager;
+        this->dManager = dManager;
+        for(int i=0;i<128;i++){
+            fileTable[i] = new FCB();
+            fileTable[i]->fileName = "";
+            fileTable[i]->fileSize = 0;
+            fileTable[i]->owner = "";
+            fileTable[i]->type = 0;
+            fileLocks[i] = false;
+        }
+
 }
+
 
 // 按照指针指向的FolderElement删除目录项
 int FolderManager::deleteData(FCB* element){
-
-    // 删除磁盘中FCB
-    this->dManager->receiveF_delete(element);
-    return STATUS_OK;
+        // 删除磁盘中FCB
+        this->dManager->receiveF_delete(element);
+        return STATUS_OK;
 }
 
 // 输出信息：获取所有文件
 queue<FCB*> FolderManager::getFiles(){
-    // FCB模拟
-    queue<FCB*> q;
-    int i=10;
-    while(i--){
-        FCB* fcb = new FCB();
-        fcb->type = 0;
-        fcb->owner = User::userName;
-        fcb->fileName = "文件";
-        fcb->fileSize = 1;
-        time_t timep = time(0);
-        fcb->createTime = localtime(&timep);
-        q.push(fcb);
-    }
-    return q;
+        queue<FCB*> q;
+        for(int i=0;i<128;i++){
+            if(fileTable[i]->fileName != ""){
+                q.push(fileTable[i]);
+            }
+            else continue;
+        }
+        return q;
 }
 
-// 添加目录项，注意：添加时记得往element里面填写tm时间数据
+// 创建新文件，注意：添加时记得往element里面填写tm时间数据
 int FolderManager::generateData(string data,string fileName){
-    return STATUS_OK;
+        for(int k=0;k<128;k++){
+            if(fileTable[k]->fileName == fileName){
+                return STATUS_SAME_FILE;
+            }
+        }
+        // 获取时间
+        for(int i=0;i<128;i++){
+            if(this->fileTable[i]->fileName == ""){
+                this->fileTable[i]->fileName = fileName;
+                int a;
+                a = data.size();
+                int b;
+                if(a%4 == 0){
+                    b = a/4;
+                }
+                else b = (a/4)+1;
+                this->fileTable[i]->fileSize = b;
+                time_t t = time(0);
+                this->fileTable[i]->createTime = localtime(&t);
+                //fileTable[i]->owner = User::userName;
+                this->dManager->receiveF_add(this->fileTable[i],data);
+                return STATUS_OK;
+
+            }
+        }
+        return STATUS_OK;
 }
 
 // 读取数据
 string FolderManager::getData(FCB * element){
-
-
+    string data_read = this->dManager->receiveF_read(element);
+    return data_read;
 }
-
-// 给文件上锁
-int FolderManager::lockFile(FCB *fcb)
-{
-
+int FolderManager::lockFile(FCB * fcb){
+    for(int i=0;i<128;i++){
+        if(fcb->fileName == fileTable[i]->fileName){
+            this->fileLocks[i] = true;
+        }
+    }
+    return STATUS_OK;
 }
-
-// 给文件解锁
-int FolderManager::unlockFile(FCB *fcb)
-{
-
+int FolderManager::unlockFile(FCB * fcb){
+    for(int i=0;i<128;i++){
+        if(fcb->fileName == fileTable[i]->fileName){
+            this->fileLocks[i] = false;
+        }
+    }
+    return STATUS_OK;
 }
