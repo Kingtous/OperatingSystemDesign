@@ -34,27 +34,9 @@ int MemoryManager::allocMemory(TCB *t){
                 reGetAccessTime(i);
             }
         }
-
         //创建线程页表，并加入到页表链中
         //创建该线程的页表
-        auto new_table = new PageTable();
-        new_table->tcb = t;
-        string s;  //创建线程页表新的页表项
-        for(int k = 0; k < new_table->tcb->data.size(); ++k){
-            //读取该线程数据
-            s += new_table->tcb->data[k];
-            if((k+1)%4 == 0 || k == (t->data.size()-1)){
-                BlockPage table_item;
-                table_item.page_id = k/4;  //填入页号
-                table_item.block_id = -1;  //最开始没有页在内存中，每页对应的内存块号都是-1
-                table_item.page_data = s;
-                new_table->table.push_back(table_item);  //把页表项加入页表
-                s = "";
-            }
-        }
-        //加入页表链
-        new_table->next = tableList->next;
-        tableList->next = new_table;
+        creatPageTable(t);
         return STATUS_OK;
     }
     return STATUS_FULL;
@@ -84,6 +66,9 @@ int MemoryManager::freeBlock(TCB *t){
                 i->block_item.isFree = true;
                 ++mem_list->free_length;
                 i->block_item.data = "";
+                i->block_item.time.accessTime.tm_min = 0;
+                i->block_item.time.accessTime.tm_sec = 0;
+                i->block_item.time.accessTime.tm_hour = 0;
                 break;
             }
         }
@@ -92,6 +77,29 @@ int MemoryManager::freeBlock(TCB *t){
     t->isAlloc = false;
 
     return STATUS_OK;
+}
+
+void MemoryManager::creatPageTable(TCB *t){
+    //创建线程页表，并加入到页表链中
+    //创建该线程的页表
+    auto new_table = new PageTable();
+    new_table->tcb = t;
+    string s;  //创建线程页表新的页表项
+    for(int k = 0; k < new_table->tcb->data.size(); ++k){
+        //读取该线程数据
+        s += new_table->tcb->data[k];
+        if((k+1)%4 == 0 || k == (t->data.size()-1)){
+            BlockPage table_item;
+            table_item.page_id = k/4;  //填入页号
+            table_item.block_id = -1;  //最开始没有页在内存中，每页对应的内存块号都是-1
+            table_item.page_data = s;
+            new_table->table.push_back(table_item);  //把页表项加入页表
+            s = "";
+        }
+    }
+    //加入页表链
+    new_table->next = tableList->next;
+    tableList->next = new_table;
 }
 
 // 从内存读取数据，pageIndex是页号
@@ -112,7 +120,7 @@ ReadStat MemoryManager::read(TCB *t, int pageIndex){
                     //该页已在内存中
                     if(j.block_id != -1){
                         loose_page = false;  //不缺页，页在内存中
-                        rst.code = 0;
+                        rst.code = STATUS_MEMORY_EXIST;
                         rst.mBlock = j.block_id;
                         //更新内存块调用时间,并传内存块中的数据
                         for(auto memItem = mem_list->next; memItem != nullptr; memItem = memItem->next){
@@ -136,7 +144,7 @@ ReadStat MemoryManager::read(TCB *t, int pageIndex){
             //缺页
             if(loose_page){
                 //缺页处理
-                rst.code = STATUS_MEMORY_EXIST;
+                rst.code = STATUS_EXCHANGE_PAGE;
                 rst.mBlock = loosePage(t, pageIndex, aim_data);
             }
             break;

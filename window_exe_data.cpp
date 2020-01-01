@@ -43,7 +43,6 @@ void window_exe_data::on_pushButton_clicked()
     //ui->pushButton->setDisabled(true);
     // 获取页号数
     int page = nb_pageNumber->value();
-    tcb->data = CGlobal::fManager->getData(tcb->fcb);
     // 在内存中读取数据
     auto status = CGlobal::mManager->read(tcb,page);
     // 通过string来判断
@@ -97,22 +96,32 @@ void window_exe_data::on_btn_load_clicked()
         box->setText("未选择文件");
         box->exec();
     } else {
-        // 上锁，在窗口关闭的时候解锁
-        CGlobal::fManager->lockFile(fileSelected);
         tcb->fcb = fileSelected;
-        isInUse = true;
-        // 在创建数据执行线程时，已经在FCB中分配了4个内存，所以直接禁用调入内存等
-        ((QPushButton*)sender())->setEnabled(false);
-        lv_fileList->setDisabled(true);
-        ll_loadFile->setText(QString::fromStdString(fileSelected->fileName));
-        // 设置页号范围
-        int blockSize = fileSelected->fileSize;
-        if (blockSize <= 0){
-            nb_pageNumber->setRange(0,0);
-            // 不允许读入
+        // 在tcb中加入读入的数据
+        tcb->data = CGlobal::fManager->getData(tcb->fcb);
+        // 上锁，在窗口关闭的时候解锁
+        int status = CGlobal::mManager->allocMemory(tcb);
+        if (status == STATUS_OK){
+            CGlobal::fManager->lockFile(fileSelected);
+            isInUse = true;
+            // 在创建数据执行线程时，已经在FCB中分配了4个内存，所以直接禁用调入内存等
+            ((QPushButton*)sender())->setEnabled(false);
+            lv_fileList->setDisabled(true);
+            ll_loadFile->setText(QString::fromStdString(fileSelected->fileName));
+            // 设置页号范围
+            int blockSize = fileSelected->fileSize;
+            if (blockSize <= 0){
+                nb_pageNumber->setRange(0,0);
+                // 不允许读入
+            } else {
+                nb_pageNumber->setRange(0,blockSize-1);
+                ui->pushButton->setEnabled(true);
+            }
+            emit notifyUpdate();
         } else {
-            nb_pageNumber->setRange(0,blockSize-1);
-            ui->pushButton->setEnabled(true);
+            QMessageBox *box = new QMessageBox();
+            box->setText("内存不足，无法打开更多的执行线程，请关闭一些执行线程再重试");
+            box->exec();
         }
     }
 }

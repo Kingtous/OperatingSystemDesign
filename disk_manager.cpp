@@ -157,6 +157,7 @@ int DiskManager::changeBlock(FCB *e,string dt,int number){
             this->Map[i].data = dt;
             this->Map[i].pageNumber = number;
             this->disk[i] = dt;
+            return STATUS_OK;
         }
     }
     return STATUS_BUSY;
@@ -175,8 +176,12 @@ int DiskManager::ReleaseBlock(FCB *e){
 }
 // 从内存接收对换数据
 int DiskManager::receiveM(FCB * e,int pageNumber,string data){
+    if (pageNumber == -1){
+        // 如果是空页，则直接返回
+        return STATUS_OK;
+    }
     for(int i=900;i<1024;i++){
-        if(pageNumber == this->Map[i].pageNumber){
+        if(pageNumber == this->Map[i].pageNumber && e->fileName == this->Map[i].fileName){
             return STATUS_OK;
             break;
         }
