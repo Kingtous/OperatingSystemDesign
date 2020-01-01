@@ -45,8 +45,8 @@ int FolderManager::generateData(string data,string fileName){
         }
         // 获取时间
         for(int i=0;i<128;i++){
-            if(fileTable[i]->fileName == ""){
-                fileTable[i]->fileName = fileName;
+            if(this->fileTable[i]->fileName == ""){
+                this->fileTable[i]->fileName = fileName;
                 int a;
                 a = data.size();
                 int b;
@@ -54,12 +54,13 @@ int FolderManager::generateData(string data,string fileName){
                     b = a/4;
                 }
                 else b = (a/4)+1;
-                fileTable[i]->fileSize = b;
+                this->fileTable[i]->fileSize = b;
                 time_t t = time(0);
-                fileTable[i]->createTime = localtime(&t);
-                fileTable[i]->owner = User::userName;
-                this->dManager->receiveF_add(fileTable[i],data);
-                break;
+                this->fileTable[i]->createTime = localtime(&t);
+                //fileTable[i]->owner = User::userName;
+                this->dManager->receiveF_add(this->fileTable[i],data);
+                return STATUS_OK;
+
             }
         }
         return STATUS_OK;
@@ -73,7 +74,7 @@ string FolderManager::getData(FCB * element){
 int FolderManager::lockFile(FCB * fcb){
     for(int i=0;i<128;i++){
         if(fcb->fileName == fileTable[i]->fileName){
-            fileLocks[i] = true;
+            this->fileLocks[i] = true;
         }
     }
     return STATUS_OK;
@@ -81,7 +82,7 @@ int FolderManager::lockFile(FCB * fcb){
 int FolderManager::unlockFile(FCB * fcb){
     for(int i=0;i<128;i++){
         if(fcb->fileName == fileTable[i]->fileName){
-            fileLocks[i] = false;
+            this->fileLocks[i] = false;
         }
     }
     return STATUS_OK;
