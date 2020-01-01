@@ -5,6 +5,7 @@
 #include "cglobal.h"
 
 #include <QDebug>
+#include <QtGui>
 #include <QStandardItemModel>
 #include <QLabel>
 #include <QMainWindow>
@@ -25,6 +26,8 @@ public:
 
     QTableView* tv_disk;
     QStandardItemModel* model;
+
+    QStandardItemModel* notFreeModel;
     QLabel *ll_data;
     QLabel *ll_status;
     QLabel *ll_pos;

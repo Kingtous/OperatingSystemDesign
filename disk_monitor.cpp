@@ -27,11 +27,22 @@ DiskMonitor::DiskMonitor(QWidget *parent) :
     tv_disk->setEditTriggers(QTableView::NoEditTriggers);
 //    tv_disk->setRowHeight(0,50);
     tv_disk->setSelectionMode(QAbstractItemView::SingleSelection);
-    tv_disk->horizontalHeader()->hide();
-    tv_disk->verticalHeader()->hide();
+//    tv_disk->horizontalHeader()->hide();
+//    tv_disk->verticalHeader()->hide();
+    // 初始化行号从0开始
+    for (int i=0;i<model->rowCount();i++) {
+        model->setHeaderData(i,Qt::Vertical,i);
+    }
+    for (int i=0;i<model->rowCount();i++) {
+        model->setHeaderData(i,Qt::Horizontal,i);
+    }
     // 设置点击事件
     connect(tv_disk, SIGNAL(clicked(const QModelIndex &)), this, SLOT(onTableClicked(const QModelIndex &)));
     // 获取数据
+    notFreeModel = new QStandardItemModel(ui->tv_notFree);
+    ui->tv_notFree->setModel(notFreeModel);
+    ui->tv_notFree->setEditTriggers(QTableView::NoEditTriggers);
+
     updateDiskUI();
 }
 
@@ -46,6 +57,8 @@ void DiskMonitor::updateDiskUI()
     qMapTemp = CGlobal::dManager->getCurrentBitMap();
     int freeBlockCnt = 0;
     int totalBlock = 0;
+    // 清空空闲分区
+    notFreeModel->clear();
     while(!qMapTemp.empty()){
         auto item = qMapTemp.front();
         if(item.isFree){
@@ -55,6 +68,13 @@ void DiskMonitor::updateDiskUI()
         if (item.x >=0 && item.y >=0 && item.x <32 && item.y <32){
             QStandardItem * qItem =new QStandardItem(QString::fromStdString(item.data));
             model->setItem(item.x,item.y,qItem);
+            if (!item.isFree){
+                // 染色
+                model->setData(model->index(item.x,item.y),QVariant(QBrush(Qt::red)), Qt::BackgroundRole);
+                QStandardItem * it = new QStandardItem();
+                it->setText(QString::fromStdString(item.data)+"-("+QString::number(item.x)+","+QString::number(item.y)+")");
+                notFreeModel->appendRow(it);
+            }
             this->bMItem[item.x][item.y] =item;
         } else {
             qDebug() << "警告：试图写入非法UI空间";
