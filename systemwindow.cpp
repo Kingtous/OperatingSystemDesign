@@ -107,6 +107,7 @@ void SystemWindow::createDataExeThread()
     QObject::connect(thread,SIGNAL(showWaitDialog(QDialog *)),this,SLOT(showDialog(QDialog *)));
     QObject::connect(thread,SIGNAL(closeWaitDialog(QDialog *)),this,SLOT(closeDialog(QDialog *)));
     connect(thread,SIGNAL(showMessage(QString)),this,SLOT(showMessage(QString)));
+    connect(thread,SIGNAL(notify()),this,SLOT(updateData()));
     QObject::connect(thread,SIGNAL(openUI(TCB*)),this,SLOT(openDataExeUI(TCB*)));
     //连接信号
     thread->start();

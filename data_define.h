@@ -94,12 +94,13 @@ typedef struct TCB{
     FCB * fcb;
     string data;
     bool isAlloc = false; //分配后要把isAlloc改为true
-    int mBlock[4] = {-1,-1,-1,-1}; //4个block的内存块号
+    vector<int> mBlock = {-1,-1,-1,-1}; //4个block的内存块号
 } TCB;
 
 // 输出数据
 void outputStr(string s);
 QString parseTM(tm t);
+QString parseTMSimple(tm t);
 
 // 位示图表示，用于存放
 typedef struct BitMapItem{

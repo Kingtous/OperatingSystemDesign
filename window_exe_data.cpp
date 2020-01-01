@@ -43,6 +43,7 @@ void window_exe_data::on_pushButton_clicked()
     //ui->pushButton->setDisabled(true);
     // 获取页号数
     int page = nb_pageNumber->value();
+    tcb->data = CGlobal::fManager->getData(tcb->fcb);
     // 在内存中读取数据
     auto status = CGlobal::mManager->read(tcb,page);
     // 通过string来判断
@@ -98,6 +99,7 @@ void window_exe_data::on_btn_load_clicked()
     } else {
         // 上锁，在窗口关闭的时候解锁
         CGlobal::fManager->lockFile(fileSelected);
+        tcb->fcb = fileSelected;
         isInUse = true;
         // 在创建数据执行线程时，已经在FCB中分配了4个内存，所以直接禁用调入内存等
         ((QPushButton*)sender())->setEnabled(false);

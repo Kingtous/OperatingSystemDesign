@@ -51,13 +51,21 @@ void MemoryMonitor::updateMemoryUI()
         QStandardItem * id =new QStandardItem();
         QStandardItem * data =new QStandardItem();
         QStandardItem * isAlloc =new QStandardItem();
+        QStandardItem * lTime = new QStandardItem();
+
         id->setTextAlignment(Qt::AlignCenter);
         data->setTextAlignment(Qt::AlignCenter);
         isAlloc->setTextAlignment(Qt::AlignCenter);
+        lTime->setTextAlignment(Qt::AlignCenter);
+
         id->setText(QString::number(qitem.id));
         data->setText(QString::fromStdString(qitem.data));
+        lTime->setText(parseTMSimple(qitem.time.accessTime));
+
         model->setItem(cnt,0,id);
         model->setItem(cnt,1,data);
+        model->setItem(cnt,3,lTime);
+
         if(qitem.isFree){
             isAlloc->setText("是");
         }   else {
