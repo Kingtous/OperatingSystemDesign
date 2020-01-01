@@ -190,7 +190,7 @@
     <rect>
      <x>90</x>
      <y>170</y>
-     <width>271</width>
+     <width>231</width>
      <height>31</height>
     </rect>
    </property>
@@ -199,6 +199,25 @@
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
+   </property>
+   <property name="maxLength">
+    <number>96</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="txt_inputNum">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>175</y>
+     <width>41</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
  </widget>

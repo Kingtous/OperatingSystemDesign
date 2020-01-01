@@ -173,8 +173,12 @@ int DiskManager::ReleaseBlock(FCB *e){
 }
 // 从内存接收对换数据
 int DiskManager::receiveM(FCB * e,int pageNumber,string data){
+    if (pageNumber == -1){
+        // 如果是空页，则直接返回
+        return STATUS_OK;
+    }
     for(int i=900;i<1024;i++){
-        if(pageNumber == this->Map[i].pageNumber){
+        if(pageNumber == this->Map[i].pageNumber && e->fileName == this->Map[i].fileName){
             return STATUS_OK;
             break;
         }
@@ -198,6 +202,7 @@ int DiskManager::receiveF_delete(FCB * e){
 
 // 从目录接受添加
 int DiskManager::receiveF_add(FCB *e,string data){
+    // data在UI上限定死了，最大为96
     int a;
     a = data.size();
     e->iFile = indexFile(a);
