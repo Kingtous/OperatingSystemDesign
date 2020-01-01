@@ -1,4 +1,5 @@
 #include "memory_manager.h"
+#include <QString>
 // 构造函数
 MemoryManager::MemoryManager(DiskManager * dManager)
 {
@@ -60,11 +61,12 @@ int MemoryManager::allocMemory(TCB *t){
 }
 
 // 释放TCB里面的数据
-bool MemoryManager::freeBlock(TCB *t){
+int MemoryManager::freeBlock(TCB *t){
     //删除对换区
     //调用删除对换区函数
-    this->dManager->deleteBlock(t->fcb);
-
+    if (t->fcb != nullptr){
+        this->dManager->deleteBlock(t->fcb);
+    }
     //更新页表链
     for(auto i = tableList; i->next != nullptr; i = i->next){
         if(i->next->tcb == t){
@@ -89,7 +91,7 @@ bool MemoryManager::freeBlock(TCB *t){
     t->mBlock = {-1,-1,-1,-1};  //该TCB状态还原
     t->isAlloc = false;
 
-    return true;
+    return STATUS_OK;
 }
 
 // 从内存读取数据，pageIndex是页号

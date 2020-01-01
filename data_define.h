@@ -6,7 +6,7 @@
 #include <time.h>
 #include <queue>
 #include <iostream>
-//#include <QString>
+#include <QString>
 // 目录项定义
 using namespace std;
 
@@ -77,7 +77,7 @@ typedef struct FCB{
     //       int tm_isdst; // 夏令时
     //     }
     bool isInUse; // 是否正在使用
-    tm* createTime; // 创建的时间
+    tm createTime; // 创建的时间
     // 在磁盘中存放的地址
     Index_File* iFile;
 }FCB;
@@ -99,7 +99,8 @@ typedef struct TCB{
 
 // 输出数据
 void outputStr(string s);
-//QString parseTM(tm* t);
+QString parseTM(tm t);
+QString parseTMSimple(tm t);
 
 // 位示图表示，用于存放
 typedef struct BitMapItem{

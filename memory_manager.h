@@ -1,10 +1,8 @@
-//
-// Created by Zhang Boyu on 2019/12/28.
-//
-
 #ifndef MEMORYMANAGER_H
 #define MEMORYMANAGER_H
 
+#include <QString>
+#include <QRandomGenerator>
 #include "data_define.h"
 #include "disk_manager.h"
 
@@ -47,7 +45,7 @@ public:
     int allocMemory(TCB *t);
 
     // 释放TCB里面的数据
-    bool freeBlock(TCB *t);
+    int freeBlock(TCB *t);
 
     // 从内存读取数据，index
     ReadStat read(TCB *t,int pageIndex);

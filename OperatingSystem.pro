@@ -25,27 +25,49 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        cglobal.cpp \
         data_define.cpp \
+        dialog_delete_data.cpp \
+        dialog_gen_data.cpp \
         disk_manager.cpp \
+        disk_monitor.cpp \
         folder_manager.cpp \
+        gendatathread.cpp \
         main.cpp \
-        main_form.cpp \
         mainwindow.cpp \
         memory_manager.cpp \
-        process_manager.cpp
+        memory_monitor.cpp \
+        process_manager.cpp \
+        systemwindow.cpp \
+        user.cpp \
+        window_exe_data.cpp
 
 HEADERS += \
+        cglobal.h \
         data_define.h \
+        dialog_delete_data.h \
+        dialog_gen_data.h \
         disk_manager.h \
+        disk_monitor.h \
         folder_manager.h \
-        main_form.h \
+        gendatathread.h \
         memory_manager.h \
+        memory_monitor.h \
         process_manager.h \
+        systemwindow.h \
+        user.h \
         widget.h \
-        mainwindow.h
+        mainwindow.h \
+        window_exe_data.h
 
 FORMS += \
-        mainwindow.ui
+        dialog_delete_data.ui \
+        dialog_gen_data.ui \
+        disk_monitor.ui \
+        mainwindow.ui \
+        memory_monitor.ui \
+        systemwindow.ui \
+        window_exe_data.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
