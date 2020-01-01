@@ -53,8 +53,8 @@ public:
 //    // 回写数据
 //    int writeBack(TCB* t,int pageIndex);
 //
-//    // 读取换出页的数据
-//    int loadWriteBackData(TCB* t,int pageIndex);
+    // 读取换出页的数据
+    string loadWriteBackData(TCB* t,int pageIndex);
 
     // 输出当前MemoryBlock的状态
     queue<MemoryBlockItem> getCurrentMemoryBlock();
