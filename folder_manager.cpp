@@ -29,6 +29,7 @@ int FolderManager::deleteData(FCB* element){
                 int status = this->dManager->receiveF_delete(element);
                 // 删除目录项中的文件
                 fileTable[i]->fileName = "";
+                fileTable[i]->fileSize = 0;
                 return status;
             }
         }
