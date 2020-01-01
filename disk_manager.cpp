@@ -84,7 +84,7 @@ Index_block_one* indexBlockOne(int blocks[],int start,int end)
      for(int i = 0; i < block_num; i++)
      {
          int temp = rand() % MAX_BLOCK_NUMBER;
-         while(this->Map[temp].isFree = false)
+         while(this->Map[temp].isFree == false)
          {
             temp = rand() % MAX_BLOCK_NUMBER;
          }

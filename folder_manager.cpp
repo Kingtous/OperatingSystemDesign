@@ -66,8 +66,8 @@ int FolderManager::generateData(string data,string fileName){
                 }
                 else b = (a/4)+1;
                 fileTable[i]->fileSize = b;
-                time_t t = time(0);
-                fileTable[i]->createTime = localtime(&t);
+                time_t t = time(nullptr);
+                fileTable[i]->createTime = *localtime(&t);
                 fileTable[i]->owner = User::userName;
                 return this->dManager->receiveF_add(fileTable[i],data);
             }

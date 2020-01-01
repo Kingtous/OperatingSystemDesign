@@ -77,16 +77,16 @@ typedef struct FCB{
     //       int tm_isdst; // 夏令时
     //     }
     bool isInUse; // 是否正在使用
-    tm* createTime; // 创建的时间
+    tm createTime; // 创建的时间
     // 在磁盘中存放的地址
     Index_File* iFile;
 }FCB;
 
 typedef struct BlockTime{
     //提供数据块进入模拟内存的时间
-    tm *enterTime;
+    tm enterTime;
     //访问时间
-    tm *accessTime;
+    tm accessTime;
 } BlockTime;
 
 // 线程管理模块
@@ -99,7 +99,7 @@ typedef struct TCB{
 
 // 输出数据
 void outputStr(string s);
-QString parseTM(tm* t);
+QString parseTM(tm t);
 
 // 位示图表示，用于存放
 typedef struct BitMapItem{
