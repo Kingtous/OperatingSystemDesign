@@ -24,8 +24,7 @@ protected:
     void run();
 
 signals:
-    void showWaitDialog(QDialog * dialog);
-    void closeWaitDialog(QDialog * dialog);
+    void showMessage(QString str);
     void openUI();
 
 };
@@ -44,8 +43,7 @@ protected:
     void run();
 
 signals:
-    void showWaitDialog(QDialog * dialog);
-    void closeWaitDialog(QDialog * dialog);
+    void showMessage(QString str);
     void openUI();
 
 
@@ -63,8 +61,6 @@ protected:
     void run();
 
 signals:
-    void showWaitDialog(QDialog * dialog);
-    void closeWaitDialog(QDialog * dialog);
     void openUI(TCB* tcb);
     // 通知内存有变动
     void notify();

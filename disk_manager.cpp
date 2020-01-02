@@ -1,7 +1,6 @@
 #include "disk_manager.h"
 #include <string.h>
 #include <stdlib.h>
-#include <sys/malloc.h>
 #include <fstream>
 #include <iostream>
 #define BlockNum     1024      //磁盘块的数目(编号从0开始)
@@ -29,59 +28,59 @@ DiskManager::DiskManager()
     }
 }
 //生成第三层索引，并并根据blocks赋值，
-Index_block_three* indexBlockThree(int blocks[],int start,int end)
+Index_block_three indexBlockThree(int blocks[],int start,int end)
 {
-    Index_block_three * ans = (Index_block_three*) malloc(sizeof(Index_block_three));
+    Index_block_three ans;
     int j = 0;
     for(int i = start; i < end; i++)
     {
-        ans->blocks[j++] = blocks[i];
+        ans.blocks[j++] = blocks[i];
     }
     return ans;
 }
 //生成第二层索引
-Index_block_two* indexBlockTwo(int blocks[],int start,int end)
+Index_block_two indexBlockTwo(int blocks[],int start,int end)
 {
     //计算生成几个第三层索引
     int num = (end - start) % MAX_NUMBER_IN_BLOCK == 0? (end - start) / MAX_NUMBER_IN_BLOCK : (end - start) / MAX_NUMBER_IN_BLOCK + 1;
     //生成第二层索引
-    Index_block_two *ans = (Index_block_two *) malloc (sizeof(Index_block_two));
+    Index_block_two ans;
     //生成num第三层索引
     for(int i = 0; i < num; i++)
     {
         if(i != num -1)
-            ans->blocks[i] = *indexBlockThree(blocks,start + i * MAX_NUMBER_IN_BLOCK,start + (i + 1) * MAX_NUMBER_IN_BLOCK);
+            ans.blocks[i] = indexBlockThree(blocks,start + i * MAX_NUMBER_IN_BLOCK,start + (i + 1) * MAX_NUMBER_IN_BLOCK);
         else
-            ans->blocks[i] = *indexBlockThree(blocks,start + i * MAX_NUMBER_IN_BLOCK,end);
+            ans.blocks[i] = indexBlockThree(blocks,start + i * MAX_NUMBER_IN_BLOCK,end);
     }
     return ans;
 }
 
-Index_block_one* indexBlockOne(int blocks[],int start,int end)
+Index_block_one indexBlockOne(int blocks[],int start,int end)
 {
     //计算二层索引块的个数
     int num = (end - start) % (MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK) == 0 ?
               (end - start) / (MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK) :
               (end - start) / (MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK) + 1 ;
-    Index_block_one *ans = (Index_block_one*) malloc(sizeof(Index_block_one));
+    Index_block_one ans;
     //生成num个二层索引的块
     for(int i = 0; i < num; i++)
     {
         if(i != num - 1)
-            ans->blocks[i] = *indexBlockTwo(blocks,start + i * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK,start + (i + 1) * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK);
+            ans.blocks[i] = indexBlockTwo(blocks,start + i * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK,start + (i + 1) * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK);
         else
-            ans->blocks[i] = *indexBlockTwo(blocks,start + i * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK,end);
+            ans.blocks[i] = indexBlockTwo(blocks,start + i * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK,end);
     }
     return ans;
 }
 
 //给定一个文件的长度，给出模拟分配占用的磁盘块的情况
-Index_File* DiskManager::indexFile(int filesize)
+Index_File DiskManager::indexFile(int filesize)
 {
     //计算该文件需要多少盘块
     int block_num = filesize % BLOCK_SIZE == 0 ? filesize / BLOCK_SIZE : filesize / BLOCK_SIZE + 1;
     //定义保存所有盘块号的数组
-    int *blocks = (int *) malloc(sizeof(int) * block_num);
+    int blocks[block_num];
     //初始化数组
     memset(blocks,0,sizeof(int) * block_num);
 
@@ -97,15 +96,14 @@ Index_File* DiskManager::indexFile(int filesize)
         blocks[i] = temp;
     }
 
-    Index_File *indexfile;
-    indexfile = (Index_File*) malloc(sizeof(Index_File));
-    indexfile->fileSize = filesize;
+    Index_File indexfile;
+    indexfile.fileSize = filesize;
     //直接地址
     if(block_num <= 10)
     {
         for(int i = 0; i < block_num; i++)
         {
-            indexfile->addr[i] = blocks[i];
+            indexfile.addr[i] = blocks[i];
         }
     }
         //一次间址
@@ -113,30 +111,30 @@ Index_File* DiskManager::indexFile(int filesize)
     {
         for(int i = 0; i < 10; i++)
         {
-            indexfile->addr[i] = blocks[i];
+            indexfile.addr[i] = blocks[i];
         }
-        indexfile->addr10 = *indexBlockThree(blocks,10,block_num);
+        indexfile.addr10 = indexBlockThree(blocks,10,block_num);
     }
         //二次间址
     else if(block_num <= MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10)
     {
         for(int i = 0; i < 10; i++)
         {
-            indexfile->addr[i] = blocks[i];
+            indexfile.addr[i] = blocks[i];
         }
-        indexfile->addr10 = *indexBlockThree(blocks,10,MAX_NUMBER_IN_BLOCK + 10);
-        indexfile->addr11 = *indexBlockTwo(blocks,MAX_NUMBER_IN_BLOCK+10,block_num);
+        indexfile.addr10 = indexBlockThree(blocks,10,MAX_NUMBER_IN_BLOCK + 10);
+        indexfile.addr11 = indexBlockTwo(blocks,MAX_NUMBER_IN_BLOCK+10,block_num);
     }
         //三次间址
     else if(block_num <= MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK + MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10)
     {
         for(int i = 0; i < 10; i++)
         {
-            indexfile->addr[i] = blocks[i];
+            indexfile.addr[i] = blocks[i];
         }
-        indexfile->addr10 = *indexBlockThree(blocks,10,MAX_NUMBER_IN_BLOCK + 10);
-        indexfile->addr11 = *indexBlockTwo(blocks,MAX_NUMBER_IN_BLOCK+10,MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10);
-        indexfile->addr12 = *indexBlockOne(blocks,MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10,block_num);
+        indexfile.addr10 = indexBlockThree(blocks,10,MAX_NUMBER_IN_BLOCK + 10);
+        indexfile.addr11 = indexBlockTwo(blocks,MAX_NUMBER_IN_BLOCK+10,MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10);
+        indexfile.addr12 = indexBlockOne(blocks,MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10,block_num);
     }
     return indexfile;
 }
@@ -187,7 +185,6 @@ int DiskManager::receiveM(FCB* e,int pageNumber,string data){
     for(int i=900;i<1024;i++){
         if(pageNumber == this->Map[i].pageNumber && e->fileName == this->Map[i].fileName){
             return STATUS_OK;
-            break;
         }
     }
     changeBlock(e,data,pageNumber);
@@ -200,7 +197,6 @@ string DiskManager::returnM(FCB* e,int number){
         if(number == this->Map[i].pageNumber && e->fileName == this->Map[i].fileName){
             dataReturn = this->Map[i].data;
             return dataReturn;
-            break;
         }
     }
     return dataReturn;
@@ -224,7 +220,7 @@ int DiskManager::receiveF_add(FCB *e,string data){
     // data在UI上限定死了，最大为96
     int a;
     a = data.size();
-    e->iFile = *indexFile(a);
+    e->iFile = indexFile(a);
 
     int fnumber = e->fileSize;
     int b[24] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};

@@ -139,7 +139,7 @@ typedef struct FCB{
         ar(CEREAL_NVP(type),CEREAL_NVP(fileName),CEREAL_NVP(type),CEREAL_NVP(owner),CEREAL_NVP(fileSize),CEREAL_NVP(isInUse),CEREAL_NVP(iFile));
         // 存取时间
         ar(CEREAL_NVP(createTime.tm_min),CEREAL_NVP(createTime.tm_mon),CEREAL_NVP(createTime.tm_sec),CEREAL_NVP(createTime.tm_hour),CEREAL_NVP(createTime.tm_mday));
-        ar(CEREAL_NVP(createTime.tm_wday),CEREAL_NVP(createTime.tm_yday),CEREAL_NVP(createTime.tm_year),CEREAL_NVP(createTime.tm_isdst),CEREAL_NVP(createTime.tm_gmtoff));
+        ar(CEREAL_NVP(createTime.tm_wday),CEREAL_NVP(createTime.tm_yday),CEREAL_NVP(createTime.tm_year),CEREAL_NVP(createTime.tm_isdst));
     }
 
 }FCB;

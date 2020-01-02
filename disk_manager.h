@@ -49,7 +49,7 @@ public:
     queue<BitMapItem> getCurrentBitMap();
 
     //根据文件大小分配混合索引的盘块号
-    Index_File* indexFile(int filesize);
+    Index_File indexFile(int filesize);
 
     // 序列化函数
     template<class Archive>

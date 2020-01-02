@@ -85,8 +85,7 @@ void SystemWindow::showBtnTextOnStatusBar()
 void SystemWindow::createDataGenThread()
 {
     GenDataThread *thread = new GenDataThread();
-    QObject::connect(thread,SIGNAL(showWaitDialog(QDialog *)),this,SLOT(showDialog(QDialog *)));
-    QObject::connect(thread,SIGNAL(closeWaitDialog(QDialog *)),this,SLOT(closeDialog(QDialog *)));
+    QObject::connect(thread,SIGNAL(showMessage(QString)),this,SLOT(showMessage(QString)));
     QObject::connect(thread,SIGNAL(openUI()),this,SLOT(openDataGenUI()));
     thread->start();
     qDebug() <<"数据生成线程启动";
@@ -95,8 +94,7 @@ void SystemWindow::createDataGenThread()
 void SystemWindow::createDataDelThread()
 {
     DelDataThread *thread = new DelDataThread();
-    QObject::connect(thread,SIGNAL(showWaitDialog(QDialog *)),this,SLOT(showDialog(QDialog *)));
-    QObject::connect(thread,SIGNAL(closeWaitDialog(QDialog *)),this,SLOT(closeDialog(QDialog *)));
+    QObject::connect(thread,SIGNAL(showMessage(QString)),this,SLOT(showMessage(QString)));
     QObject::connect(thread,SIGNAL(openUI()),this,SLOT(openDataDelUI()));
     thread->start();
     qDebug() <<"数据生成线程启动";
@@ -105,8 +103,7 @@ void SystemWindow::createDataDelThread()
 void SystemWindow::createDataExeThread()
 {
     ExeDataThread *thread = new ExeDataThread();
-    QObject::connect(thread,SIGNAL(showWaitDialog(QDialog *)),this,SLOT(showDialog(QDialog *)));
-    QObject::connect(thread,SIGNAL(closeWaitDialog(QDialog *)),this,SLOT(closeDialog(QDialog *)));
+    QObject::connect(thread,SIGNAL(showMessage(QString)),this,SLOT(showMessage(QString)));
     connect(thread,SIGNAL(showMessage(QString)),this,SLOT(showMessage(QString)));
     connect(thread,SIGNAL(notify()),this,SLOT(updateData()));
     QObject::connect(thread,SIGNAL(openUI(TCB*)),this,SLOT(openDataExeUI(TCB*)));
