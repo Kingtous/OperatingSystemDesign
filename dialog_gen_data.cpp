@@ -33,6 +33,22 @@ void dialog_gen_data::on_btn_submit_clicked()
     // 获取界面数据
     QString fileName = edit_fileName->text();
     QString fileContent = edit_fileContent->text();
+
+    if (fileName.trimmed().size() == 0 || fileContent ==0){
+        QDialog * dialog = new QDialog(this);
+        QVBoxLayout *layout = new QVBoxLayout();
+        QPushButton *btn_ok = new QPushButton("确定");
+        btn_ok->setParent(dialog);
+        connect(btn_ok,SIGNAL(clicked()),this,SLOT(on_message_btn_ok()));
+        layout->addWidget(new QLabel("数据存盘失败,可能的原因:"));
+        layout->addWidget(new QLabel("1.文件名为空"));
+        layout->addWidget(new QLabel("2.文件内容为空"));
+        layout->addWidget(btn_ok);
+        dialog->setLayout(layout);
+        dialog->exec();
+        return;
+    }
+
     int status = CGlobal::fManager->generateData(fileContent.toStdString(),fileName.toStdString());
     if(status == STATUS_ERR){
         // 失败了，弹出失败框
@@ -46,10 +62,19 @@ void dialog_gen_data::on_btn_submit_clicked()
         layout->addWidget(new QLabel("2.存在同名文件，请检查后重试"));
         layout->addWidget(btn_ok);
         dialog->setLayout(layout);
-        dialog->show();
+        dialog->exec();
         return;
     } else {
         // 发出信号给主线程
+        QDialog * dialog = new QDialog(this);
+        QVBoxLayout *layout = new QVBoxLayout();
+        QPushButton *btn_ok = new QPushButton("确定");
+        btn_ok->setParent(dialog);
+        connect(btn_ok,SIGNAL(clicked()),this,SLOT(on_message_btn_ok()));
+        layout->addWidget(new QLabel("文件写入成功"));
+        layout->addWidget(btn_ok);
+        dialog->setLayout(layout);
+        dialog->exec();
         emit dataUpdated();
         this->close();
     }
