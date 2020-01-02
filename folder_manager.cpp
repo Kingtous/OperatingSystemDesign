@@ -11,6 +11,9 @@ FolderManager::FolderManager(DiskManager * dManager)
         if (os.is_open()){
             cereal::JSONInputArchive archieve(os);
             this->serialize(archieve);
+            for(int i=0;i<128;i++){
+                fileLocks[i] = false;
+            }
         } else {
             for(int i=0;i<128;i++){
                 fileTable[i].fileName = "";
