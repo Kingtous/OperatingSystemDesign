@@ -7,6 +7,14 @@
 #include <queue>
 #include <iostream>
 #include <QString>
+
+// 序列化存盘
+#include "cereal/archives/json.hpp"
+#include "cereal/types/unordered_map.hpp"
+#include "cereal/types/memory.hpp"
+#include "cereal/types/string.hpp"
+#include "cereal/types/base_class.hpp"
+
 // 目录项定义
 using namespace std;
 
@@ -28,18 +36,33 @@ using namespace std;
 struct Index_block_three
 {
     int blocks[MAX_NUMBER_IN_BLOCK];
+
+    template<class Archive>
+    void serialize(Archive & ar){
+        ar(CEREAL_NVP(blocks));
+    }
 };
 
 //定义二次间址的第一个索引块，和三次间址的第二个索引块
 struct Index_block_two
 {
-    Index_block_three *blocks[MAX_NUMBER_IN_BLOCK];
+    Index_block_three blocks[MAX_NUMBER_IN_BLOCK];
+
+    template<class Archive>
+    void serialize(Archive & ar){
+        ar(CEREAL_NVP(blocks));
+    }
 };
 
 //定义三次间址的第一个索引块
 struct Index_block_one
 {
-    Index_block_two *blocks[MAX_NUMBER_IN_BLOCK];
+    Index_block_two blocks[MAX_NUMBER_IN_BLOCK];
+
+    template<class Archive>
+    void serialize(Archive & ar){
+        ar(CEREAL_NVP(blocks));
+    }
 };
 //定义混合索引的数据结构
 typedef struct Index_File
@@ -51,13 +74,41 @@ typedef struct Index_File
     //定义10个直接地址项
     int addr[10] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
     //定义一次间址的地址项
-    Index_block_three *addr10;
+    Index_block_three addr10;
     //定义二次间址的地址项
-    Index_block_two *addr11;
+    Index_block_two addr11;
     //定义三次间址的地址项
-    Index_block_one *addr12;
+    Index_block_one addr12;
+    // 序列化函数
+    template<class Archive>
+    void serialize(Archive & ar){
+        ar(CEREAL_NVP(fileName),CEREAL_NVP(fileSize),CEREAL_NVP(addr),CEREAL_NVP(addr10),CEREAL_NVP(addr11),CEREAL_NVP(addr12));
+    }
+
 }Index_File;
 
+// cereal不支持tm类型
+//typedef struct mTm{
+//    int	tm_sec;		/* seconds after the minute [0-60] */
+//    int	tm_min;		/* minutes after the hour [0-59] */
+//    int	tm_hour;	/* hours since midnight [0-23] */
+//    int	tm_mday;	/* day of the month [1-31] */
+//    int	tm_mon;		/* months since January [0-11] */
+//    int	tm_year;	/* years since 1900 */
+//    int	tm_wday;	/* days since Sunday [0-6] */
+//    int	tm_yday;	/* days since January 1 [0-365] */
+//    int	tm_isdst;	/* Daylight Savings Time flag */
+//    long	tm_gmtoff;	/* offset from UTC in seconds */
+//    char	*tm_zone;	/* timezone abbreviation */
+
+//    template<class Archive>
+//    void serialize(Archive & ar){
+//        ar(CEREAL_NVP(tm_sec),CEREAL_NVP(tm_min),CEREAL_NVP(tm_hour),CEREAL_NVP(tm_mday),CEREAL_NVP(tm_mon),CEREAL_NVP(tm_year),CEREAL_NVP(tm_wday));
+//        // 存/取
+//        ar(CEREAL_NVP(tm_yday),CEREAL_NVP(tm_isdst),CEREAL_NVP(tm_gmtoff)
+//    }
+
+//} Mtm;
 
 typedef struct FCB{
     // 文件结构，文件为0，文件夹为1
@@ -80,7 +131,16 @@ typedef struct FCB{
     bool isInUse; // 是否正在使用
     tm createTime; // 创建的时间
     // 在磁盘中存放的地址
-    Index_File* iFile;
+    Index_File iFile;
+
+    // 序列化函数
+    template<class Archive>
+    void serialize(Archive & ar){
+        ar(CEREAL_NVP(type),CEREAL_NVP(fileName),CEREAL_NVP(type),CEREAL_NVP(owner),CEREAL_NVP(fileSize),CEREAL_NVP(isInUse),CEREAL_NVP(iFile));
+        // 存取时间
+        ar(CEREAL_NVP(createTime.tm_min),CEREAL_NVP(createTime.tm_mon),CEREAL_NVP(createTime.tm_sec),CEREAL_NVP(createTime.tm_hour),CEREAL_NVP(createTime.tm_mday));
+        ar(CEREAL_NVP(createTime.tm_wday),CEREAL_NVP(createTime.tm_yday),CEREAL_NVP(createTime.tm_year),CEREAL_NVP(createTime.tm_isdst),CEREAL_NVP(createTime.tm_gmtoff));
+    }
 
 }FCB;
 
@@ -112,6 +172,13 @@ typedef struct BitMapItem{
     int pageNumber = -1;
     int x = -1; //位示图x轴，二维数组第1个下标
     int y = -1; //位示图y轴，二维数组第2个下标
+
+    // 序列化函数
+    template<class Archive>
+    void serialize(Archive & ar){
+        ar(CEREAL_NVP(isFree),CEREAL_NVP(data),CEREAL_NVP(fileName),CEREAL_NVP(pageNumber),CEREAL_NVP(x),CEREAL_NVP(y));
+    }
+
 } BitFreeMap;
 
 // 内存块状况

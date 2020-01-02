@@ -1,17 +1,24 @@
 #include "folder_manager.h"
 #include "data_define.h"
 #include <queue>
+#include <fstream>
 
 FolderManager::FolderManager(DiskManager * dManager)
 {
         this->dManager = dManager;
-        for(int i=0;i<128;i++){
-            fileTable[i] = new FCB();
-            fileTable[i]->fileName = "";
-            fileTable[i]->fileSize = 0;
-            fileTable[i]->owner = "";
-            fileTable[i]->type = 0;
-            fileLocks[i] = false;
+
+        std::ifstream os("folder.json");
+        if (os.is_open()){
+            cereal::JSONInputArchive archieve(os);
+            this->serialize(archieve);
+        } else {
+            for(int i=0;i<128;i++){
+                fileTable[i].fileName = "";
+                fileTable[i].fileSize = 0;
+                fileTable[i].owner = "";
+                fileTable[i].type = 0;
+                fileLocks[i] = false;
+            }
         }
 
 }
@@ -20,7 +27,7 @@ FolderManager::FolderManager(DiskManager * dManager)
 int FolderManager::deleteData(FCB* element){
     // 删除磁盘中FCB
     for(int i=0;i<128;i++){
-        if(element->fileName == fileTable[i]->fileName){
+        if(element->fileName == fileTable[i].fileName){
             if (fileLocks[i]){
                 //上锁了
                 return STATUS_BUSY;
@@ -28,8 +35,8 @@ int FolderManager::deleteData(FCB* element){
                 // 删除磁盘中的文件
                 int status = this->dManager->receiveF_delete(element);
                 // 删除目录项中的文件
-                fileTable[i]->fileName = "";
-                fileTable[i]->fileSize = 0;
+                fileTable[i].fileName = "";
+                fileTable[i].fileSize = 0;
                 return status;
             }
         }
@@ -40,8 +47,8 @@ int FolderManager::deleteData(FCB* element){
 queue<FCB*> FolderManager::getFiles(){
         queue<FCB*> q;
         for(int i=0;i<128;i++){
-            if(fileTable[i]->fileName != ""){
-                q.push(fileTable[i]);
+            if(fileTable[i].fileName != ""){
+                q.push(&fileTable[i]);
             }
             else continue;
         }
@@ -51,14 +58,14 @@ queue<FCB*> FolderManager::getFiles(){
 // 创建新文件，注意：添加时记得往element里面填写tm时间数据
 int FolderManager::generateData(string data,string fileName){
         for(int k=0;k<128;k++){
-            if(fileTable[k]->fileName == fileName){
+            if(fileTable[k].fileName == fileName){
                 return STATUS_SAME_FILE;
             }
         }
         // 获取时间
         for(int i=0;i<128;i++){
-            if(fileTable[i]->fileName == ""){
-                fileTable[i]->fileName = fileName;
+            if(fileTable[i].fileName == ""){
+                fileTable[i].fileName = fileName;
                 int a;
                 a = data.size();
                 int b;
@@ -66,11 +73,11 @@ int FolderManager::generateData(string data,string fileName){
                     b = a/4;
                 }
                 else b = (a/4)+1;
-                fileTable[i]->fileSize = b;
+                fileTable[i].fileSize = b;
                 time_t t = time(nullptr);
-                fileTable[i]->createTime = *localtime(&t);
-                fileTable[i]->owner = User::userName;
-                return this->dManager->receiveF_add(fileTable[i],data);
+                fileTable[i].createTime = *localtime(&t);
+                fileTable[i].owner = User::userName;
+                return this->dManager->receiveF_add(&fileTable[i],data);
             }
         }
         // 最多存放128个块
@@ -84,7 +91,7 @@ string FolderManager::getData(FCB * element){
 }
 int FolderManager::lockFile(FCB * fcb){
     for(int i=0;i<128;i++){
-        if(fcb->fileName == fileTable[i]->fileName){
+        if(fcb->fileName == fileTable[i].fileName){
             fileLocks[i] = true;
         }
     }
@@ -92,7 +99,7 @@ int FolderManager::lockFile(FCB * fcb){
 }
 int FolderManager::unlockFile(FCB * fcb){
     for(int i=0;i<128;i++){
-        if(fcb->fileName == fileTable[i]->fileName){
+        if(fcb->fileName == fileTable[i].fileName){
             fileLocks[i] = false;
         }
     }

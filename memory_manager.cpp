@@ -143,7 +143,7 @@ ReadStat MemoryManager::read(TCB *t, int pageIndex){
             }
             //缺页
             if(loose_page){
-                //询问对换区，本次课设仅做模拟，不使用对换区返还的数据
+                //询问对换区
                 string change_data = loadWriteBackData(t, pageIndex);
                 //缺页处理
                 rst.code = STATUS_EXCHANGE_PAGE;
@@ -161,7 +161,7 @@ ReadStat MemoryManager::read(TCB *t, int pageIndex){
 //
 //}
 //
-// 读取从对换区请求的数据，做拓展使用，本次课设为模拟，并未使用对换区数据
+// 读取从对换区请求的数据
 string MemoryManager::loadWriteBackData(TCB*t,int pageIndex){
     string change_data;
     change_data = this->dManager->returnM(t->fcb, pageIndex);

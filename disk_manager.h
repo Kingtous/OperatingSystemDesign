@@ -3,7 +3,11 @@
 #define BLOCK_SIZE   4
 #include <queue>
 #include "data_define.h"
-
+// 序列化存盘
+#include "cereal/archives/json.hpp"
+#include "cereal/types/unordered_map.hpp"
+#include "cereal/types/memory.hpp"
+#include "cereal/types/string.hpp"
 
 class DiskManager
 {
@@ -46,6 +50,12 @@ public:
 
     //根据文件大小分配混合索引的盘块号
     Index_File* indexFile(int filesize);
+
+    // 序列化函数
+    template<class Archive>
+    void serialize(Archive & ar){
+        ar(CEREAL_NVP(disk),CEREAL_NVP(Map));
+    }
 
 };
 

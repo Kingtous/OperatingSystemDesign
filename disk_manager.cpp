@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/malloc.h>
+#include <fstream>
+#include <iostream>
 #define BlockNum     1024      //磁盘块的数目(编号从0开始)
 #define BlockSize    4         //磁盘块大小
 #define SystemSize   1024*4     //磁盘总容量
@@ -11,14 +13,19 @@
 // 初始化函数
 DiskManager::DiskManager()
 {
-    //分配1024*4B空间
-
-    for(int i=0;i<1024;i++){
-        Map[i].isFree = true;
-        Map[i].x = (i)/32;
-        Map[i].y = (i)%32;
-        Map[i].data = nullData;
-        disk[i] = nullData;
+    std::ifstream os("disk.json");
+    if (os.is_open()){
+        cereal::JSONInputArchive archieve(os);
+        this->serialize(archieve);
+    } else {
+        //分配1024*4B空间
+        for(int i=0;i<1024;i++){
+            Map[i].isFree = true;
+            Map[i].x = (i)/32;
+            Map[i].y = (i)%32;
+            Map[i].data = nullData;
+            disk[i] = nullData;
+        }
     }
 }
 //生成第三层索引，并并根据blocks赋值，
@@ -43,9 +50,9 @@ Index_block_two* indexBlockTwo(int blocks[],int start,int end)
     for(int i = 0; i < num; i++)
     {
         if(i != num -1)
-            ans->blocks[i] = indexBlockThree(blocks,start + i * MAX_NUMBER_IN_BLOCK,start + (i + 1) * MAX_NUMBER_IN_BLOCK);
+            ans->blocks[i] = *indexBlockThree(blocks,start + i * MAX_NUMBER_IN_BLOCK,start + (i + 1) * MAX_NUMBER_IN_BLOCK);
         else
-            ans->blocks[i] = indexBlockThree(blocks,start + i * MAX_NUMBER_IN_BLOCK,end);
+            ans->blocks[i] = *indexBlockThree(blocks,start + i * MAX_NUMBER_IN_BLOCK,end);
     }
     return ans;
 }
@@ -61,9 +68,9 @@ Index_block_one* indexBlockOne(int blocks[],int start,int end)
     for(int i = 0; i < num; i++)
     {
         if(i != num - 1)
-            ans->blocks[i] = indexBlockTwo(blocks,start + i * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK,start + (i + 1) * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK);
+            ans->blocks[i] = *indexBlockTwo(blocks,start + i * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK,start + (i + 1) * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK);
         else
-            ans->blocks[i] = indexBlockTwo(blocks,start + i * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK,end);
+            ans->blocks[i] = *indexBlockTwo(blocks,start + i * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK,end);
     }
     return ans;
 }
@@ -108,7 +115,7 @@ Index_File* DiskManager::indexFile(int filesize)
         {
             indexfile->addr[i] = blocks[i];
         }
-        indexfile->addr10 = indexBlockThree(blocks,10,block_num);
+        indexfile->addr10 = *indexBlockThree(blocks,10,block_num);
     }
         //二次间址
     else if(block_num <= MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10)
@@ -117,8 +124,8 @@ Index_File* DiskManager::indexFile(int filesize)
         {
             indexfile->addr[i] = blocks[i];
         }
-        indexfile->addr10 = indexBlockThree(blocks,10,MAX_NUMBER_IN_BLOCK + 10);
-        indexfile->addr11 = indexBlockTwo(blocks,MAX_NUMBER_IN_BLOCK+10,block_num);
+        indexfile->addr10 = *indexBlockThree(blocks,10,MAX_NUMBER_IN_BLOCK + 10);
+        indexfile->addr11 = *indexBlockTwo(blocks,MAX_NUMBER_IN_BLOCK+10,block_num);
     }
         //三次间址
     else if(block_num <= MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK * MAX_NUMBER_IN_BLOCK + MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10)
@@ -127,9 +134,9 @@ Index_File* DiskManager::indexFile(int filesize)
         {
             indexfile->addr[i] = blocks[i];
         }
-        indexfile->addr10 = indexBlockThree(blocks,10,MAX_NUMBER_IN_BLOCK + 10);
-        indexfile->addr11 = indexBlockTwo(blocks,MAX_NUMBER_IN_BLOCK+10,MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10);
-        indexfile->addr12 = indexBlockOne(blocks,MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10,block_num);
+        indexfile->addr10 = *indexBlockThree(blocks,10,MAX_NUMBER_IN_BLOCK + 10);
+        indexfile->addr11 = *indexBlockTwo(blocks,MAX_NUMBER_IN_BLOCK+10,MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10);
+        indexfile->addr12 = *indexBlockOne(blocks,MAX_NUMBER_IN_BLOCK * (MAX_NUMBER_IN_BLOCK + 1) + 10,block_num);
     }
     return indexfile;
 }
@@ -188,7 +195,6 @@ int DiskManager::receiveM(FCB* e,int pageNumber,string data){
 }
 //给内存输出对换数据  换出数据
 string DiskManager::returnM(FCB* e,int number){
-    int temp;
     string dataReturn;
     for(int i=900;i<1024;i++){
         if(number == this->Map[i].pageNumber && e->fileName == this->Map[i].fileName){
@@ -197,7 +203,7 @@ string DiskManager::returnM(FCB* e,int number){
             break;
         }
     }
-    
+    return dataReturn;
 }
 
 // 目录管理申请删除
@@ -218,159 +224,159 @@ int DiskManager::receiveF_add(FCB *e,string data){
     // data在UI上限定死了，最大为96
     int a;
     a = data.size();
-    e->iFile = indexFile(a);
+    e->iFile = *indexFile(a);
 
     int fnumber = e->fileSize;
     int b[24] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
     for(int i=0;i<10;i++){
-        b[i] = e->iFile->addr[i];
+        b[i] = e->iFile.addr[i];
     }
     switch (fnumber){
         case 11:{
-            b[10] = e->iFile->addr10->blocks[0];
+            b[10] = e->iFile.addr10.blocks[0];
             break;
         }
         case 12:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
             break;
         }
         case 13:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
             break;
         }
         case 14:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
             break;
         }
         case 15:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
             break;
         }
         case 16:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
             break;
         }
         case 17:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
             break;
         }
         case 18:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
-            b[17] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[1];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
+            b[17] = e->iFile.addr12.blocks[0].blocks[0].blocks[1];
             break;
         }
         case 19:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
-            b[17] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[1];
-            b[18] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[0];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
+            b[17] = e->iFile.addr12.blocks[0].blocks[0].blocks[1];
+            b[18] = e->iFile.addr12.blocks[0].blocks[1].blocks[0];
             break;
         }
         case 20:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
-            b[17] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[1];
-            b[18] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[0];
-            b[19] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[1];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
+            b[17] = e->iFile.addr12.blocks[0].blocks[0].blocks[1];
+            b[18] = e->iFile.addr12.blocks[0].blocks[1].blocks[0];
+            b[19] = e->iFile.addr12.blocks[0].blocks[1].blocks[1];
             break;
         }
         case 21:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
-            b[17] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[1];
-            b[18] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[0];
-            b[19] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[1];
-            b[20] = e->iFile->addr12->blocks[1]->blocks[0]->blocks[0];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
+            b[17] = e->iFile.addr12.blocks[0].blocks[0].blocks[1];
+            b[18] = e->iFile.addr12.blocks[0].blocks[1].blocks[0];
+            b[19] = e->iFile.addr12.blocks[0].blocks[1].blocks[1];
+            b[20] = e->iFile.addr12.blocks[1].blocks[0].blocks[0];
             break;
         }
         case 22:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
-            b[17] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[1];
-            b[18] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[0];
-            b[19] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[1];
-            b[20] = e->iFile->addr12->blocks[1]->blocks[0]->blocks[0];
-            b[21] = e->iFile->addr12->blocks[1]->blocks[0]->blocks[1];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
+            b[17] = e->iFile.addr12.blocks[0].blocks[0].blocks[1];
+            b[18] = e->iFile.addr12.blocks[0].blocks[1].blocks[0];
+            b[19] = e->iFile.addr12.blocks[0].blocks[1].blocks[1];
+            b[20] = e->iFile.addr12.blocks[1].blocks[0].blocks[0];
+            b[21] = e->iFile.addr12.blocks[1].blocks[0].blocks[1];
             break;
         }
         case 23:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
-            b[17] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[1];
-            b[18] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[0];
-            b[19] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[1];
-            b[20] = e->iFile->addr12->blocks[1]->blocks[0]->blocks[0];
-            b[21] = e->iFile->addr12->blocks[1]->blocks[0]->blocks[1];
-            b[22] = e->iFile->addr12->blocks[1]->blocks[1]->blocks[0];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
+            b[17] = e->iFile.addr12.blocks[0].blocks[0].blocks[1];
+            b[18] = e->iFile.addr12.blocks[0].blocks[1].blocks[0];
+            b[19] = e->iFile.addr12.blocks[0].blocks[1].blocks[1];
+            b[20] = e->iFile.addr12.blocks[1].blocks[0].blocks[0];
+            b[21] = e->iFile.addr12.blocks[1].blocks[0].blocks[1];
+            b[22] = e->iFile.addr12.blocks[1].blocks[1].blocks[0];
             break;
         }
         case 24:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
-            b[17] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[1];
-            b[18] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[0];
-            b[19] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[1];
-            b[20] = e->iFile->addr12->blocks[1]->blocks[0]->blocks[0];
-            b[21] = e->iFile->addr12->blocks[1]->blocks[0]->blocks[1];
-            b[22] = e->iFile->addr12->blocks[1]->blocks[1]->blocks[0];
-            b[23] = e->iFile->addr12->blocks[1]->blocks[1]->blocks[1];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
+            b[17] = e->iFile.addr12.blocks[0].blocks[0].blocks[1];
+            b[18] = e->iFile.addr12.blocks[0].blocks[1].blocks[0];
+            b[19] = e->iFile.addr12.blocks[0].blocks[1].blocks[1];
+            b[20] = e->iFile.addr12.blocks[1].blocks[0].blocks[0];
+            b[21] = e->iFile.addr12.blocks[1].blocks[0].blocks[1];
+            b[22] = e->iFile.addr12.blocks[1].blocks[1].blocks[0];
+            b[23] = e->iFile.addr12.blocks[1].blocks[1].blocks[1];
             break;
         }
         default:break;
@@ -398,154 +404,154 @@ string DiskManager::receiveF_read(FCB* e){
     int fnumber = e->fileSize;
     int b[24] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
     for(int i=0;i<10;i++){
-        b[i] = e->iFile->addr[i];
+        b[i] = e->iFile.addr[i];
     }
     switch (fnumber){
         case 11:{
-            b[10] = e->iFile->addr10->blocks[0];
+            b[10] = e->iFile.addr10.blocks[0];
             break;
         }
         case 12:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
             break;
         }
         case 13:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
             break;
         }
         case 14:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
             break;
         }
         case 15:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
             break;
         }
         case 16:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
             break;
         }
         case 17:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
             break;
         }
         case 18:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
-            b[17] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[1];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
+            b[17] = e->iFile.addr12.blocks[0].blocks[0].blocks[1];
             break;
         }
         case 19:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
-            b[17] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[1];
-            b[18] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[0];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
+            b[17] = e->iFile.addr12.blocks[0].blocks[0].blocks[1];
+            b[18] = e->iFile.addr12.blocks[0].blocks[1].blocks[0];
             break;
         }
         case 20:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
-            b[17] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[1];
-            b[18] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[0];
-            b[19] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[1];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
+            b[17] = e->iFile.addr12.blocks[0].blocks[0].blocks[1];
+            b[18] = e->iFile.addr12.blocks[0].blocks[1].blocks[0];
+            b[19] = e->iFile.addr12.blocks[0].blocks[1].blocks[1];
             break;
         }
         case 21:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
-            b[17] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[1];
-            b[18] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[0];
-            b[19] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[1];
-            b[20] = e->iFile->addr12->blocks[1]->blocks[0]->blocks[0];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
+            b[17] = e->iFile.addr12.blocks[0].blocks[0].blocks[1];
+            b[18] = e->iFile.addr12.blocks[0].blocks[1].blocks[0];
+            b[19] = e->iFile.addr12.blocks[0].blocks[1].blocks[1];
+            b[20] = e->iFile.addr12.blocks[1].blocks[0].blocks[0];
             break;
         }
         case 22:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
-            b[17] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[1];
-            b[18] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[0];
-            b[19] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[1];
-            b[20] = e->iFile->addr12->blocks[1]->blocks[0]->blocks[0];
-            b[21] = e->iFile->addr12->blocks[1]->blocks[0]->blocks[1];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
+            b[17] = e->iFile.addr12.blocks[0].blocks[0].blocks[1];
+            b[18] = e->iFile.addr12.blocks[0].blocks[1].blocks[0];
+            b[19] = e->iFile.addr12.blocks[0].blocks[1].blocks[1];
+            b[20] = e->iFile.addr12.blocks[1].blocks[0].blocks[0];
+            b[21] = e->iFile.addr12.blocks[1].blocks[0].blocks[1];
             break;
         }
         case 23:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
-            b[17] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[1];
-            b[18] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[0];
-            b[19] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[1];
-            b[20] = e->iFile->addr12->blocks[1]->blocks[0]->blocks[0];
-            b[21] = e->iFile->addr12->blocks[1]->blocks[0]->blocks[1];
-            b[22] = e->iFile->addr12->blocks[1]->blocks[1]->blocks[0];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
+            b[17] = e->iFile.addr12.blocks[0].blocks[0].blocks[1];
+            b[18] = e->iFile.addr12.blocks[0].blocks[1].blocks[0];
+            b[19] = e->iFile.addr12.blocks[0].blocks[1].blocks[1];
+            b[20] = e->iFile.addr12.blocks[1].blocks[0].blocks[0];
+            b[21] = e->iFile.addr12.blocks[1].blocks[0].blocks[1];
+            b[22] = e->iFile.addr12.blocks[1].blocks[1].blocks[0];
             break;
         }
         case 24:{
-            b[10] = e->iFile->addr10->blocks[0];
-            b[11] = e->iFile->addr10->blocks[1];
-            b[12] = e->iFile->addr11->blocks[0]->blocks[0];
-            b[13] = e->iFile->addr11->blocks[0]->blocks[1];
-            b[14] = e->iFile->addr11->blocks[1]->blocks[0];
-            b[15] = e->iFile->addr11->blocks[1]->blocks[1];
-            b[16] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[0];
-            b[17] = e->iFile->addr12->blocks[0]->blocks[0]->blocks[1];
-            b[18] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[0];
-            b[19] = e->iFile->addr12->blocks[0]->blocks[1]->blocks[1];
-            b[20] = e->iFile->addr12->blocks[1]->blocks[0]->blocks[0];
-            b[21] = e->iFile->addr12->blocks[1]->blocks[0]->blocks[1];
-            b[22] = e->iFile->addr12->blocks[1]->blocks[1]->blocks[0];
-            b[23] = e->iFile->addr12->blocks[1]->blocks[1]->blocks[1];
+            b[10] = e->iFile.addr10.blocks[0];
+            b[11] = e->iFile.addr10.blocks[1];
+            b[12] = e->iFile.addr11.blocks[0].blocks[0];
+            b[13] = e->iFile.addr11.blocks[0].blocks[1];
+            b[14] = e->iFile.addr11.blocks[1].blocks[0];
+            b[15] = e->iFile.addr11.blocks[1].blocks[1];
+            b[16] = e->iFile.addr12.blocks[0].blocks[0].blocks[0];
+            b[17] = e->iFile.addr12.blocks[0].blocks[0].blocks[1];
+            b[18] = e->iFile.addr12.blocks[0].blocks[1].blocks[0];
+            b[19] = e->iFile.addr12.blocks[0].blocks[1].blocks[1];
+            b[20] = e->iFile.addr12.blocks[1].blocks[0].blocks[0];
+            b[21] = e->iFile.addr12.blocks[1].blocks[0].blocks[1];
+            b[22] = e->iFile.addr12.blocks[1].blocks[1].blocks[0];
+            b[23] = e->iFile.addr12.blocks[1].blocks[1].blocks[1];
             break;
         }
         default:break;

@@ -85,6 +85,10 @@ public slots:
 
 private:
     Ui::SystemWindow *ui;
+
+    // QWidget interface
+protected:
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // SYSTEMWINDOW_H

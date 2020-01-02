@@ -11,7 +11,7 @@ public:
     // 暂存磁盘管理的指针变量
     DiskManager * dManager;
     //FCN保存的
-    FCB* fileTable[128];
+    FCB fileTable[128];
     bool fileLocks[128];
     //初始化
     FolderManager(DiskManager * dManager);
@@ -27,6 +27,12 @@ public:
     int lockFile(FCB * fcb);
     //不上锁
     int unlockFile(FCB * fcb);
+
+    // 序列化函数
+    template<class Archive>
+    void serialize(Archive & ar){
+        ar(CEREAL_NVP(fileTable),CEREAL_NVP(fileLocks));
+    }
 
 };
 

@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <qpushbutton.h>
+#include <fstream>
 
 SystemWindow::SystemWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -190,6 +191,19 @@ void SystemWindow::updateData()
 {
     // 通知两个监视器进行更新
     emit notifyUpdate();
+}
+
+void SystemWindow::closeEvent(QCloseEvent *event)
+{
+    // 保存磁盘管理和目录管理的状态
+    std::ofstream file("disk.json");
+    cereal::JSONOutputArchive archive(file);
+    CGlobal::dManager->serialize(archive);
+
+    std::ofstream file2("folder.json");
+    cereal::JSONOutputArchive archive2(file2);
+    CGlobal::fManager->serialize(archive2);
+
 }
 
 
